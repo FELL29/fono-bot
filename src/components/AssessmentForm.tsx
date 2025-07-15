@@ -26,7 +26,8 @@ const AssessmentForm = () => {
     developmentConcerns: "",
     communicationLevel: "",
     specialNeeds: [],
-    currentTherapy: "",
+    currentTherapies: [],
+    otherTherapies: "",
     
     // Comportamento e interesses
     childInterests: "",
@@ -50,6 +51,15 @@ const AssessmentForm = () => {
       specialNeeds: checked 
         ? [...prev.specialNeeds, need]
         : prev.specialNeeds.filter(n => n !== need)
+    }));
+  };
+
+  const handleTherapyChange = (therapy: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      currentTherapies: checked 
+        ? [...prev.currentTherapies, therapy]
+        : prev.currentTherapies.filter(t => t !== therapy)
     }));
   };
 
@@ -87,7 +97,8 @@ const AssessmentForm = () => {
         developmentConcerns: "",
         communicationLevel: "",
         specialNeeds: [],
-        currentTherapy: "",
+        currentTherapies: [],
+        otherTherapies: "",
         childInterests: "",
         attentionSpan: "",
         socialInteraction: "",
@@ -258,33 +269,36 @@ const AssessmentForm = () => {
               ))}
             </div>
 
+            <div className="space-y-4">
+              <Label>Seu filho já fez alguma terapia? (marque todas que se aplicam)</Label>
+              {[
+                "Não",
+                "Fonoaudiologia",
+                "Terapia Ocupacional",
+                "Psicologia",
+                "Fisioterapia",
+                "Psicopedagogia",
+                "Musicoterapia"
+              ].map((therapy) => (
+                <div key={therapy} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={therapy}
+                    checked={formData.currentTherapies.includes(therapy)}
+                    onCheckedChange={(checked) => handleTherapyChange(therapy, checked as boolean)}
+                  />
+                  <Label htmlFor={therapy}>{therapy}</Label>
+                </div>
+              ))}
+            </div>
+
             <div className="space-y-2">
-              <Label>Seu filho já faz alguma terapia?</Label>
-              <RadioGroup 
-                value={formData.currentTherapy} 
-                onValueChange={(value) => updateFormData("currentTherapy", value)}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="nao" id="therapy-no" />
-                  <Label htmlFor="therapy-no">Não</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="fonoaudiologia" id="therapy-speech" />
-                  <Label htmlFor="therapy-speech">Fonoaudiologia</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="terapia-ocupacional" id="therapy-ot" />
-                  <Label htmlFor="therapy-ot">Terapia Ocupacional</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="psicologia" id="therapy-psych" />
-                  <Label htmlFor="therapy-psych">Psicologia</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="multiplas" id="therapy-multiple" />
-                  <Label htmlFor="therapy-multiple">Múltiplas terapias</Label>
-                </div>
-              </RadioGroup>
+              <Label htmlFor="otherTherapies">Outras Terapias</Label>
+              <Input
+                id="otherTherapies"
+                value={formData.otherTherapies}
+                onChange={(e) => updateFormData("otherTherapies", e.target.value)}
+                placeholder="Especifique outras terapias que seu filho já fez ou faz atualmente"
+              />
             </div>
           </div>
         );
