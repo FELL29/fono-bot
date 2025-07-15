@@ -108,6 +108,12 @@ export default function Auth() {
             description: 'Este email já está cadastrado. Faça login ou use outro email.',
             variant: 'destructive',
           });
+        } else if (error.message.includes('email_send_rate_limit') || error.message.includes('rate_limit')) {
+          toast({
+            title: 'Muitas tentativas',
+            description: 'Aguarde 48 segundos antes de tentar criar a conta novamente.',
+            variant: 'destructive',
+          });
         } else {
           toast({
             title: 'Erro ao criar conta',
