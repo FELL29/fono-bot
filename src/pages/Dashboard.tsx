@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { PlusCircle, Users, Calendar, CheckCircle, MessageCircle, LogOut, Home } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import WhatsAppSimulation from '@/components/WhatsAppSimulation';
 
 interface Child {
   id: string;
@@ -268,6 +269,9 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* WhatsApp Simulation */}
+        <WhatsAppSimulation />
 
         {/* Quick Stats */}
         <div className="grid gap-6 md:grid-cols-3">

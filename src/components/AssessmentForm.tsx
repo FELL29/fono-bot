@@ -80,6 +80,46 @@ const AssessmentForm = () => {
         throw new Error('Erro ao salvar dados da criança');
       }
 
+      // Get parent profile data for WhatsApp
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('parent_name, whatsapp')
+        .eq('id', user?.id)
+        .single();
+
+      // Send WhatsApp welcome message (simulation)
+      if (profileData?.whatsapp) {
+        try {
+          const { data: whatsappResult, error: whatsappError } = await supabase.functions.invoke(
+            'send-whatsapp-welcome',
+            {
+              body: {
+                child_name: formData.child_name,
+                parent_name: profileData.parent_name,
+                whatsapp: profileData.whatsapp,
+                track_id: trackId,
+              },
+            }
+          );
+
+          if (whatsappError) {
+            console.error('WhatsApp simulation error:', whatsappError);
+          } else {
+            console.log('WhatsApp simulation result:', whatsappResult);
+            
+            // Show detailed simulation result
+            setTimeout(() => {
+              toast({
+                title: "📱 Simulação WhatsApp Enviada!",
+                description: `Mensagem simulada para ${profileData.whatsapp}. Verifique o console para ver o conteúdo completo.`,
+              });
+            }, 1000);
+          }
+        } catch (whatsappError) {
+          console.error('WhatsApp function call error:', whatsappError);
+        }
+      }
+
       toast({
         title: "Avaliação concluída!",
         description: "A criança foi adicionada com sucesso. As atividades começam amanhã cedo!",
@@ -98,7 +138,7 @@ const AssessmentForm = () => {
       // Navigate to dashboard after short delay
       setTimeout(() => {
         navigate('/dashboard');
-      }, 2000);
+      }, 3000);
       
     } catch (error: any) {
       console.error('Assessment submission error:', error);
