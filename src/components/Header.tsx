@@ -1,13 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Menu, X } from "lucide-react";
+import { MessageCircle, Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
-  const navItems = [
+  const navItems = user ? [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Avaliação", href: "/avaliacao" },
+  ] : [
     { label: "Início", href: "/" },
     { label: "Sobre", href: "/sobre" },
     { label: "Recursos", href: "/#recursos" },
@@ -19,6 +25,11 @@ const Header = () => {
     if (href === "/") return location.pathname === "/";
     if (href.startsWith("/#")) return location.pathname === "/" && location.hash === href.substring(1);
     return location.pathname === href;
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
   };
 
   return (
@@ -64,12 +75,29 @@ const Header = () => {
             </nav>
 
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" className="hidden md:inline-flex">
-                Entrar
-              </Button>
-              <Button variant="hero" className="hidden md:inline-flex">
-                Começar Agora
-              </Button>
+              {user ? (
+                <Button variant="ghost" className="hidden md:inline-flex" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sair
+                </Button>
+              ) : (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    className="hidden md:inline-flex"
+                    onClick={() => navigate('/auth')}
+                  >
+                    Entrar
+                  </Button>
+                  <Button 
+                    variant="default" 
+                    className="hidden md:inline-flex"
+                    onClick={() => navigate('/auth')}
+                  >
+                    Começar Agora
+                  </Button>
+                </>
+              )}
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -118,12 +146,35 @@ const Header = () => {
                 )
               ))}
               <div className="pt-4 space-y-3">
-                <Button variant="ghost" className="w-full">
-                  Entrar
-                </Button>
-                <Button variant="hero" className="w-full">
-                  Começar Agora
-                </Button>
+                {user ? (
+                  <Button variant="ghost" className="w-full" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sair
+                  </Button>
+                ) : (
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full"
+                      onClick={() => {
+                        navigate('/auth');
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Entrar
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      className="w-full"
+                      onClick={() => {
+                        navigate('/auth');
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Começar Agora
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>
