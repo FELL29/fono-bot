@@ -44,7 +44,6 @@ const AssessmentForm = () => {
     // Bloco F - Rotina & Preferências
     screen_time: "",
     home_language: "",
-    frequency_pref: "",
   });
 
   const totalSteps = 6;
@@ -175,7 +174,7 @@ const AssessmentForm = () => {
           sensory_issue: formData.sensory_issue,
           screen_time: parseInt(formData.screen_time) || 0,
           home_language: formData.home_language,
-          frequency_pref: formData.frequency_pref,
+          frequency_pref: "3x por semana", // Default value for trial period
           track_id: trackId,
           tag_motricidade: tagMotricidade,
           tag_oral_motor: tagOralMotor,
@@ -249,7 +248,6 @@ const AssessmentForm = () => {
         sensory_issue: [],
         screen_time: "",
         home_language: "",
-        frequency_pref: "",
       });
       setCurrentStep(1);
       
@@ -607,20 +605,6 @@ const AssessmentForm = () => {
                   </div>
                 </RadioGroup>
               </div>
-              
-              <div className="space-y-2">
-                <Label>Frequência desejada de atividades *</Label>
-                <Select onValueChange={(value) => updateFormData("frequency_pref", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a frequência" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1x por semana">1× por semana</SelectItem>
-                    <SelectItem value="3x por semana">3× por semana</SelectItem>
-                    <SelectItem value="5x por semana">5× por semana</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             <div className="bg-muted/50 p-4 rounded-lg">
@@ -628,7 +612,7 @@ const AssessmentForm = () => {
               <ul className="space-y-1 text-sm text-muted-foreground">
                 <li>✓ {formData.child_name} será adicionado(a) ao seu dashboard</li>
                 <li>✓ Criaremos atividades personalizadas para o perfil</li>
-                <li>✓ Frequência: {formData.frequency_pref}</li>
+                <li>✓ Durante o período de teste: 3× por semana</li>
                 <li>✓ As atividades começam amanhã cedo!</li>
                 <li>✓ Você poderá acompanhar o progresso no dashboard</li>
               </ul>
@@ -659,8 +643,7 @@ const AssessmentForm = () => {
         return formData.joint_attention !== '';
       case 6: 
         return formData.screen_time !== '' && 
-               formData.home_language !== '' && 
-               formData.frequency_pref !== '';
+               formData.home_language !== '';
       default: return false;
     }
   };
