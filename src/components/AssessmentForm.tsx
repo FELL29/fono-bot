@@ -98,33 +98,33 @@ const AssessmentForm = () => {
       
       switch (primaryProfile) {
         case 'Criança típica':
-          profileForTrack = 'Típico';
+          profileForTrack = 'TYPICO';
           break;
         case 'Atraso ou disfunção de fala':
-          profileForTrack = 'Atraso';
+          profileForTrack = 'ATRASO';
           break;
         case 'TEA':
           profileForTrack = 'TEA';
           break;
         case 'Síndrome de Down':
-          profileForTrack = 'Down';
+          profileForTrack = 'DOWN';
           break;
         default:
-          profileForTrack = 'Típico';
+          profileForTrack = 'TYPICO';
       }
       
       // Determine age range based on years
       let ageRange = '';
       if (ageInYears >= 1 && ageInYears <= 3) {
-        ageRange = '1-3';
+        ageRange = '1_3';
       } else if (ageInYears >= 4 && ageInYears <= 6) {
-        ageRange = '4-6';
+        ageRange = '4_6';
       } else if (ageInYears >= 7 && ageInYears <= 10) {
-        ageRange = '7-10';
+        ageRange = '7_10';
       } else if (ageInYears >= 11 && ageInYears <= 14) {
-        ageRange = '11-14';
+        ageRange = '11_14';
       } else {
-        ageRange = '1-3'; // default
+        ageRange = '1_3'; // default
       }
       
       const trackProfile = `${profileForTrack}_${ageRange}`;
