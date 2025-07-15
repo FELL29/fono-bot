@@ -54,43 +54,70 @@ export type Database = {
       }
       children: {
         Row: {
+          articulation_issue: string[] | null
           child_age: number
           child_name: string
-          child_profile: Database["public"]["Enums"]["child_profile"]
-          comprehension_level:
-            | Database["public"]["Enums"]["comprehension_level"]
-            | null
           created_at: string
+          follow_commands: string | null
+          frequency_pref: string | null
+          hearing_ok: string | null
+          home_language: string | null
           id: string
-          speech_level: Database["public"]["Enums"]["speech_level"] | null
+          joint_attention: string | null
+          oral_motor: string[] | null
+          parent_name: string | null
+          screen_time: number | null
+          sensory_issue: string[] | null
+          tag_joint_attention: boolean | null
+          tag_motricidade: boolean | null
+          tag_noise: boolean | null
+          tag_oral_motor: boolean | null
           track_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          articulation_issue?: string[] | null
           child_age: number
           child_name: string
-          child_profile: Database["public"]["Enums"]["child_profile"]
-          comprehension_level?:
-            | Database["public"]["Enums"]["comprehension_level"]
-            | null
           created_at?: string
+          follow_commands?: string | null
+          frequency_pref?: string | null
+          hearing_ok?: string | null
+          home_language?: string | null
           id?: string
-          speech_level?: Database["public"]["Enums"]["speech_level"] | null
+          joint_attention?: string | null
+          oral_motor?: string[] | null
+          parent_name?: string | null
+          screen_time?: number | null
+          sensory_issue?: string[] | null
+          tag_joint_attention?: boolean | null
+          tag_motricidade?: boolean | null
+          tag_noise?: boolean | null
+          tag_oral_motor?: boolean | null
           track_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          articulation_issue?: string[] | null
           child_age?: number
           child_name?: string
-          child_profile?: Database["public"]["Enums"]["child_profile"]
-          comprehension_level?:
-            | Database["public"]["Enums"]["comprehension_level"]
-            | null
           created_at?: string
+          follow_commands?: string | null
+          frequency_pref?: string | null
+          hearing_ok?: string | null
+          home_language?: string | null
           id?: string
-          speech_level?: Database["public"]["Enums"]["speech_level"] | null
+          joint_attention?: string | null
+          oral_motor?: string[] | null
+          parent_name?: string | null
+          screen_time?: number | null
+          sensory_issue?: string[] | null
+          tag_joint_attention?: boolean | null
+          tag_motricidade?: boolean | null
+          tag_noise?: boolean | null
+          tag_oral_motor?: boolean | null
           track_id?: string | null
           updated_at?: string
           user_id?: string
@@ -206,25 +233,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_track_for_child: {
-        Args: {
-          p_child_profile: Database["public"]["Enums"]["child_profile"]
-          p_child_age: number
-        }
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
-      child_profile: "Típico" | "TEA" | "Down" | "Atraso"
+      child_profile:
+        | "Criança típica"
+        | "Atraso ou disfunção de fala"
+        | "TEA"
+        | "Síndrome de Down"
       comprehension_level:
-        | "Entende tudo"
-        | "Ordens simples"
-        | "Pouco"
-        | "Só pistas visuais"
+        | "Entende quase tudo"
+        | "Entende ordens simples"
+        | "Entende muito pouco"
+        | "Responde só a pistas visuais"
       speech_level:
         | "Não verbal"
-        | "Palavras isoladas"
-        | "Frases curtas"
+        | "Emite sons / sílabas"
+        | "Fala 10‑50 palavras"
+        | "Frases de 2‑3 palavras"
         | "Frases completas"
       subscription_plan: "TRIAL" | "ESSENCIAL" | "AVANCADO" | "PREMIUM"
       user_role: "parent" | "therapist" | "admin"
@@ -355,17 +381,23 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      child_profile: ["Típico", "TEA", "Down", "Atraso"],
+      child_profile: [
+        "Criança típica",
+        "Atraso ou disfunção de fala",
+        "TEA",
+        "Síndrome de Down",
+      ],
       comprehension_level: [
-        "Entende tudo",
-        "Ordens simples",
-        "Pouco",
-        "Só pistas visuais",
+        "Entende quase tudo",
+        "Entende ordens simples",
+        "Entende muito pouco",
+        "Responde só a pistas visuais",
       ],
       speech_level: [
         "Não verbal",
-        "Palavras isoladas",
-        "Frases curtas",
+        "Emite sons / sílabas",
+        "Fala 10‑50 palavras",
+        "Frases de 2‑3 palavras",
         "Frases completas",
       ],
       subscription_plan: ["TRIAL", "ESSENCIAL", "AVANCADO", "PREMIUM"],

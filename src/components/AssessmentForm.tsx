@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, ArrowLeft, CheckCircle, Baby, Brain, MessageCircle, User } from "lucide-react";
+import { ArrowRight, ArrowLeft, CheckCircle, Baby, Brain, MessageCircle, User, Heart, Volume2, Home } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -18,17 +19,49 @@ const AssessmentForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
+    // Bloco A - Identificação
+    parent_name: "",
     child_name: "",
     child_age: "",
+    
+    // Bloco B - Diagnóstico & Saúde
     child_profile: "",
+    hearing_ok: "",
+    
+    // Bloco C - Expressão Oral
     speech_level: "",
+    articulation_issue: [] as string[],
+    oral_motor: [] as string[],
+    
+    // Bloco D - Compreensão
     comprehension_level: "",
+    follow_commands: "",
+    
+    // Bloco E - Social & Sensorial
+    joint_attention: "",
+    sensory_issue: [] as string[],
+    
+    // Bloco F - Rotina & Preferências
+    screen_time: "",
+    home_language: "",
+    frequency_pref: "",
   });
 
-  const totalSteps = 5;
+  const totalSteps = 6;
 
   const updateFormData = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const updateCheckboxArray = (field: string, value: string, checked: boolean) => {
+    setFormData(prev => {
+      const currentArray = prev[field as keyof typeof prev] as string[];
+      if (checked) {
+        return { ...prev, [field]: [...currentArray.filter(item => item !== "Nenhuma"), value] };
+      } else {
+        return { ...prev, [field]: currentArray.filter(item => item !== value) };
+      }
+    });
   };
 
   const nextStep = () => {
@@ -47,13 +80,13 @@ const AssessmentForm = () => {
     setIsLoading(true);
     
     try {
-      // Convert age string to number
+      // Convert age string to number (months)
       const ageValue = parseInt(formData.child_age);
       
       // Get track for child profile and age
       const { data: trackId, error: trackError } = await supabase
         .rpc('get_track_for_child', {
-          p_child_profile: formData.child_profile as 'Típico' | 'TEA' | 'Down' | 'Atraso',
+          p_child_profile: formData.child_profile as any,
           p_child_age: ageValue,
         });
 
@@ -62,17 +95,47 @@ const AssessmentForm = () => {
         throw new Error('Erro ao determinar o plano de atividades');
       }
 
-      // Insert child into database
+      // Calculate start level based on speech level
+      let startLevel = 'A';
+      if (['Não verbal', 'Emite sons / sílabas'].includes(formData.speech_level)) {
+        startLevel = 'A';
+      } else if (['Fala 10‑50 palavras', 'Frases de 2‑3 palavras'].includes(formData.speech_level)) {
+        startLevel = 'B';
+      } else {
+        startLevel = 'C';
+      }
+
+      // Generate tags based on responses
+      const tagMotricidade = formData.articulation_issue.some(item => item !== "Nenhuma") && formData.articulation_issue.length > 0;
+      const tagOralMotor = formData.oral_motor.some(item => item !== "Nenhuma") && formData.oral_motor.length > 0;
+      const tagJointAttention = formData.joint_attention === "Baixa";
+      const tagNoise = formData.sensory_issue.includes("Sensível a ruídos");
+
+      // Insert child into database with all assessment data
       const { error: childError } = await supabase
         .from('children')
         .insert({
           user_id: user?.id,
+          parent_name: formData.parent_name,
           child_name: formData.child_name,
           child_age: ageValue,
-          child_profile: formData.child_profile as 'Típico' | 'TEA' | 'Down' | 'Atraso',
-          speech_level: formData.speech_level as 'Não verbal' | 'Palavras isoladas' | 'Frases curtas' | 'Frases completas',
-          comprehension_level: formData.comprehension_level as 'Entende tudo' | 'Ordens simples' | 'Pouco' | 'Só pistas visuais',
+          child_profile: formData.child_profile as any,
+          hearing_ok: formData.hearing_ok,
+          speech_level: formData.speech_level as any,
+          articulation_issue: formData.articulation_issue,
+          oral_motor: formData.oral_motor,
+          comprehension_level: formData.comprehension_level as any,
+          follow_commands: formData.follow_commands,
+          joint_attention: formData.joint_attention,
+          sensory_issue: formData.sensory_issue,
+          screen_time: parseInt(formData.screen_time) || 0,
+          home_language: formData.home_language,
+          frequency_pref: formData.frequency_pref,
           track_id: trackId,
+          tag_motricidade: tagMotricidade,
+          tag_oral_motor: tagOralMotor,
+          tag_joint_attention: tagJointAttention,
+          tag_noise: tagNoise,
         });
 
       if (childError) {
@@ -127,11 +190,21 @@ const AssessmentForm = () => {
 
       // Reset form and navigate to dashboard
       setFormData({
+        parent_name: "",
         child_name: "",
         child_age: "",
         child_profile: "",
+        hearing_ok: "",
         speech_level: "",
+        articulation_issue: [],
+        oral_motor: [],
         comprehension_level: "",
+        follow_commands: "",
+        joint_attention: "",
+        sensory_issue: [],
+        screen_time: "",
+        home_language: "",
+        frequency_pref: "",
       });
       setCurrentStep(1);
       
@@ -159,19 +232,48 @@ const AssessmentForm = () => {
           <div className="space-y-6">
             <div className="text-center space-y-4">
               <User className="w-12 h-12 text-primary mx-auto" />
-              <h3 className="text-2xl font-bold">Nome da Criança</h3>
-              <p className="text-muted-foreground">Como devemos chamar seu filho(a)?</p>
+              <h3 className="text-2xl font-bold">Bloco A - Identificação</h3>
+              <p className="text-muted-foreground">Vamos começar com algumas informações básicas</p>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="child_name">Nome da criança *</Label>
-              <Input
-                id="child_name"
-                value={formData.child_name}
-                onChange={(e) => updateFormData("child_name", e.target.value)}
-                placeholder="Digite o nome da criança"
-                required
-              />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="parent_name">Seu nome completo *</Label>
+                <Input
+                  id="parent_name"
+                  value={formData.parent_name}
+                  onChange={(e) => updateFormData("parent_name", e.target.value)}
+                  placeholder="Digite seu nome completo"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="child_name">Nome da criança *</Label>
+                <Input
+                  id="child_name"
+                  value={formData.child_name}
+                  onChange={(e) => updateFormData("child_name", e.target.value)}
+                  placeholder="Digite o nome da criança"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Idade da criança em meses *</Label>
+                <Input
+                  type="number"
+                  min="12"
+                  max="168"
+                  value={formData.child_age}
+                  onChange={(e) => updateFormData("child_age", e.target.value)}
+                  placeholder="Ex: 36 (para 3 anos)"
+                  required
+                />
+                <p className="text-sm text-muted-foreground">
+                  Digite a idade em meses (12-168 meses = 1-14 anos)
+                </p>
+              </div>
             </div>
           </div>
         );
@@ -180,25 +282,57 @@ const AssessmentForm = () => {
         return (
           <div className="space-y-6">
             <div className="text-center space-y-4">
-              <Baby className="w-12 h-12 text-primary mx-auto" />
-              <h3 className="text-2xl font-bold">Idade da Criança</h3>
-              <p className="text-muted-foreground">Quantos anos {formData.child_name} tem?</p>
+              <Heart className="w-12 h-12 text-primary mx-auto" />
+              <h3 className="text-2xl font-bold">Bloco B - Diagnóstico & Saúde</h3>
+              <p className="text-muted-foreground">Informações sobre o perfil de {formData.child_name}</p>
             </div>
             
-            <div className="space-y-2">
-              <Label>Idade *</Label>
-              <Select onValueChange={(value) => updateFormData("child_age", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a idade" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 14 }, (_, i) => i + 1).map((age) => (
-                    <SelectItem key={age} value={age.toString()}>
-                      {age} {age === 1 ? 'ano' : 'anos'}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Perfil clínico da criança *</Label>
+                <RadioGroup 
+                  value={formData.child_profile} 
+                  onValueChange={(value) => updateFormData("child_profile", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Criança típica" id="profile-typical" />
+                    <Label htmlFor="profile-typical">Criança típica (sem diagnóstico)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Atraso ou disfunção de fala" id="profile-delay" />
+                    <Label htmlFor="profile-delay">Atraso ou disfunção de fala</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="TEA" id="profile-tea" />
+                    <Label htmlFor="profile-tea">Transtorno do Espectro Autista (TEA)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Síndrome de Down" id="profile-down" />
+                    <Label htmlFor="profile-down">Síndrome de Down</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Audição verificada (audiometria dentro da normalidade)? *</Label>
+                <RadioGroup 
+                  value={formData.hearing_ok} 
+                  onValueChange={(value) => updateFormData("hearing_ok", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Sim" id="hearing-yes" />
+                    <Label htmlFor="hearing-yes">Sim</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Não" id="hearing-no" />
+                    <Label htmlFor="hearing-no">Não</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Não sei" id="hearing-unknown" />
+                    <Label htmlFor="hearing-unknown">Não sei</Label>
+                  </div>
+                </RadioGroup>
+              </div>
             </div>
           </div>
         );
@@ -207,34 +341,72 @@ const AssessmentForm = () => {
         return (
           <div className="space-y-6">
             <div className="text-center space-y-4">
-              <Brain className="w-12 h-12 text-primary mx-auto" />
-              <h3 className="text-2xl font-bold">Perfil da Criança</h3>
-              <p className="text-muted-foreground">Qual melhor descreve {formData.child_name}?</p>
+              <MessageCircle className="w-12 h-12 text-primary mx-auto" />
+              <h3 className="text-2xl font-bold">Bloco C - Expressão Oral</h3>
+              <p className="text-muted-foreground">Como {formData.child_name} se comunica?</p>
             </div>
 
-            <div className="space-y-2">
-              <Label>Perfil de desenvolvimento *</Label>
-              <RadioGroup 
-                value={formData.child_profile} 
-                onValueChange={(value) => updateFormData("child_profile", value)}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Típico" id="profile-typical" />
-                  <Label htmlFor="profile-typical">Desenvolvimento Típico</Label>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Nível atual de fala *</Label>
+                <RadioGroup 
+                  value={formData.speech_level} 
+                  onValueChange={(value) => updateFormData("speech_level", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Não verbal" id="speech-nonverbal" />
+                    <Label htmlFor="speech-nonverbal">Não verbal</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Emite sons / sílabas" id="speech-sounds" />
+                    <Label htmlFor="speech-sounds">Emite sons / sílabas</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Fala 10‑50 palavras" id="speech-words" />
+                    <Label htmlFor="speech-words">Fala 10‑50 palavras</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Frases de 2‑3 palavras" id="speech-short" />
+                    <Label htmlFor="speech-short">Frases de 2‑3 palavras</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Frases completas" id="speech-complete" />
+                    <Label htmlFor="speech-complete">Frases completas</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Dificuldades de articulação (pode escolher mais de uma)</Label>
+                <div className="space-y-2">
+                  {["Trocas de sons", "Omissões de sons", "Imprecisão geral", "Nenhuma"].map((option) => (
+                    <div key={option} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`articulation-${option}`}
+                        checked={formData.articulation_issue.includes(option)}
+                        onCheckedChange={(checked) => updateCheckboxArray("articulation_issue", option, checked as boolean)}
+                      />
+                      <Label htmlFor={`articulation-${option}`}>{option}</Label>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="TEA" id="profile-tea" />
-                  <Label htmlFor="profile-tea">TEA (Transtorno do Espectro Autista)</Label>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Questões de motricidade oral</Label>
+                <div className="space-y-2">
+                  {["Baba excessiva", "Dificuldade para mastigar", "Dificuldade para soprar", "Nenhuma"].map((option) => (
+                    <div key={option} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`oral-motor-${option}`}
+                        checked={formData.oral_motor.includes(option)}
+                        onCheckedChange={(checked) => updateCheckboxArray("oral_motor", option, checked as boolean)}
+                      />
+                      <Label htmlFor={`oral-motor-${option}`}>{option}</Label>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Down" id="profile-down" />
-                  <Label htmlFor="profile-down">Síndrome de Down</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Atraso" id="profile-delay" />
-                  <Label htmlFor="profile-delay">Atraso de Desenvolvimento</Label>
-                </div>
-              </RadioGroup>
+              </div>
             </div>
           </div>
         );
@@ -243,34 +415,53 @@ const AssessmentForm = () => {
         return (
           <div className="space-y-6">
             <div className="text-center space-y-4">
-              <MessageCircle className="w-12 h-12 text-primary mx-auto" />
-              <h3 className="text-2xl font-bold">Nível de Fala</h3>
-              <p className="text-muted-foreground">Como {formData.child_name} se comunica atualmente?</p>
+              <Brain className="w-12 h-12 text-primary mx-auto" />
+              <h3 className="text-2xl font-bold">Bloco D - Compreensão</h3>
+              <p className="text-muted-foreground">O quanto {formData.child_name} entende?</p>
             </div>
 
-            <div className="space-y-2">
-              <Label>Nível de fala atual *</Label>
-              <RadioGroup 
-                value={formData.speech_level} 
-                onValueChange={(value) => updateFormData("speech_level", value)}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Não verbal" id="speech-nonverbal" />
-                  <Label htmlFor="speech-nonverbal">Não verbal</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Palavras isoladas" id="speech-words" />
-                  <Label htmlFor="speech-words">Palavras isoladas</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Frases curtas" id="speech-short" />
-                  <Label htmlFor="speech-short">Frases curtas</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Frases completas" id="speech-complete" />
-                  <Label htmlFor="speech-complete">Frases completas</Label>
-                </div>
-              </RadioGroup>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Compreensão de linguagem *</Label>
+                <RadioGroup 
+                  value={formData.comprehension_level} 
+                  onValueChange={(value) => updateFormData("comprehension_level", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Entende quase tudo" id="comp-all" />
+                    <Label htmlFor="comp-all">Entende quase tudo</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Entende ordens simples" id="comp-simple" />
+                    <Label htmlFor="comp-simple">Entende ordens simples</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Entende muito pouco" id="comp-little" />
+                    <Label htmlFor="comp-little">Entende muito pouco</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Responde só a pistas visuais" id="comp-visual" />
+                    <Label htmlFor="comp-visual">Responde só a pistas visuais</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Segue instruções simples sem ajuda visual? *</Label>
+                <RadioGroup 
+                  value={formData.follow_commands} 
+                  onValueChange={(value) => updateFormData("follow_commands", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Sim" id="follow-yes" />
+                    <Label htmlFor="follow-yes">Sim</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Não" id="follow-no" />
+                    <Label htmlFor="follow-no">Não</Label>
+                  </div>
+                </RadioGroup>
+              </div>
             </div>
           </div>
         );
@@ -279,34 +470,109 @@ const AssessmentForm = () => {
         return (
           <div className="space-y-6">
             <div className="text-center space-y-4">
-              <CheckCircle className="w-12 h-12 text-primary mx-auto" />
-              <h3 className="text-2xl font-bold">Nível de Compreensão</h3>
-              <p className="text-muted-foreground">O quanto {formData.child_name} entende?</p>
+              <Volume2 className="w-12 h-12 text-primary mx-auto" />
+              <h3 className="text-2xl font-bold">Bloco E - Social & Sensorial</h3>
+              <p className="text-muted-foreground">Aspectos sociais e sensoriais de {formData.child_name}</p>
             </div>
 
-            <div className="space-y-2">
-              <Label>Nível de compreensão *</Label>
-              <RadioGroup 
-                value={formData.comprehension_level} 
-                onValueChange={(value) => updateFormData("comprehension_level", value)}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Entende tudo" id="comp-all" />
-                  <Label htmlFor="comp-all">Entende tudo</Label>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Nível de atenção conjunta (olhar compartilhado) *</Label>
+                <RadioGroup 
+                  value={formData.joint_attention} 
+                  onValueChange={(value) => updateFormData("joint_attention", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Boa" id="attention-good" />
+                    <Label htmlFor="attention-good">Boa</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Moderada" id="attention-moderate" />
+                    <Label htmlFor="attention-moderate">Moderada</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Baixa" id="attention-low" />
+                    <Label htmlFor="attention-low">Baixa</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Características sensoriais (escolha se houver)</Label>
+                <div className="space-y-2">
+                  {["Sensível a ruídos", "Busca muito movimento", "Seletivo alimentar", "Nenhuma"].map((option) => (
+                    <div key={option} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`sensory-${option}`}
+                        checked={formData.sensory_issue.includes(option)}
+                        onCheckedChange={(checked) => updateCheckboxArray("sensory_issue", option, checked as boolean)}
+                      />
+                      <Label htmlFor={`sensory-${option}`}>{option}</Label>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Ordens simples" id="comp-simple" />
-                  <Label htmlFor="comp-simple">Ordens simples</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Pouco" id="comp-little" />
-                  <Label htmlFor="comp-little">Pouco</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Só pistas visuais" id="comp-visual" />
-                  <Label htmlFor="comp-visual">Só pistas visuais</Label>
-                </div>
-              </RadioGroup>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 6:
+        return (
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <Home className="w-12 h-12 text-primary mx-auto" />
+              <h3 className="text-2xl font-bold">Bloco F - Rotina & Preferências</h3>
+              <p className="text-muted-foreground">Informações sobre rotina e preferências</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Tempo de tela diário (horas) *</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  max="24"
+                  value={formData.screen_time}
+                  onChange={(e) => updateFormData("screen_time", e.target.value)}
+                  placeholder="Ex: 2"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Idioma(s) falado(s) em casa *</Label>
+                <RadioGroup 
+                  value={formData.home_language} 
+                  onValueChange={(value) => updateFormData("home_language", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Apenas Português" id="lang-pt" />
+                    <Label htmlFor="lang-pt">Apenas Português</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Português + outro idioma" id="lang-mixed" />
+                    <Label htmlFor="lang-mixed">Português + outro idioma</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Somente outro(s) idioma(s)" id="lang-other" />
+                    <Label htmlFor="lang-other">Somente outro(s) idioma(s)</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Frequência desejada de atividades *</Label>
+                <Select onValueChange={(value) => updateFormData("frequency_pref", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a frequência" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1x por semana">1× por semana</SelectItem>
+                    <SelectItem value="3x por semana">3× por semana</SelectItem>
+                    <SelectItem value="5x por semana">5× por semana</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="bg-muted/50 p-4 rounded-lg">
@@ -314,6 +580,7 @@ const AssessmentForm = () => {
               <ul className="space-y-1 text-sm text-muted-foreground">
                 <li>✓ {formData.child_name} será adicionado(a) ao seu dashboard</li>
                 <li>✓ Criaremos atividades personalizadas para o perfil</li>
+                <li>✓ Frequência: {formData.frequency_pref}</li>
                 <li>✓ As atividades começam amanhã cedo!</li>
                 <li>✓ Você poderá acompanhar o progresso no dashboard</li>
               </ul>
@@ -328,11 +595,24 @@ const AssessmentForm = () => {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 1: return formData.child_name.trim() !== '';
-      case 2: return formData.child_age !== '';
-      case 3: return formData.child_profile !== '';
-      case 4: return formData.speech_level !== '';
-      case 5: return formData.comprehension_level !== '';
+      case 1: 
+        return formData.parent_name.trim() !== '' && 
+               formData.child_name.trim() !== '' && 
+               formData.child_age !== '';
+      case 2: 
+        return formData.child_profile !== '' && 
+               formData.hearing_ok !== '';
+      case 3: 
+        return formData.speech_level !== '';
+      case 4: 
+        return formData.comprehension_level !== '' && 
+               formData.follow_commands !== '';
+      case 5: 
+        return formData.joint_attention !== '';
+      case 6: 
+        return formData.screen_time !== '' && 
+               formData.home_language !== '' && 
+               formData.frequency_pref !== '';
       default: return false;
     }
   };
