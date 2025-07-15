@@ -156,6 +156,13 @@ const AssessmentForm = () => {
       const tagNoise = formData.sensory_issue.includes("Sensível a ruídos");
 
       // Insert child into database with all assessment data
+      console.log('Inserting child with data:', {
+        user_id: user?.id,
+        child_name: formData.child_name,
+        child_age: ageInMonths,
+        track_id: trackId
+      });
+
       const { error: childError } = await supabase
         .from('children')
         .insert({
@@ -163,12 +170,9 @@ const AssessmentForm = () => {
           parent_name: formData.parent_name,
           child_name: formData.child_name,
           child_age: ageInMonths, // Store age in months in database
-          child_profile: formData.child_profile,
           hearing_ok: formData.hearing_ok,
-          speech_level: formData.speech_level,
           articulation_issue: formData.articulation_issue,
           oral_motor: formData.oral_motor,
-          comprehension_level: formData.comprehension_level,
           follow_commands: formData.follow_commands,
           joint_attention: formData.joint_attention,
           sensory_issue: formData.sensory_issue,
@@ -184,7 +188,8 @@ const AssessmentForm = () => {
 
       if (childError) {
         console.error('Error inserting child:', childError);
-        throw new Error('Erro ao salvar dados da criança');
+        console.error('Full error details:', JSON.stringify(childError, null, 2));
+        throw new Error(`Erro ao salvar dados da criança: ${childError.message || 'Erro desconhecido'}`);
       }
 
       // Get parent profile data for WhatsApp
