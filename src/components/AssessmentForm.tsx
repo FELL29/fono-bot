@@ -83,10 +83,10 @@ const AssessmentForm = () => {
       // Convert age string to number (months)
       const ageValue = parseInt(formData.child_age);
       
-      // Get track for child profile and age
-      const { data: trackId, error: trackError } = await supabase
+      // Get track for child profile and age using direct SQL query
+      const { data: trackId, error: trackError } = await (supabase as any)
         .rpc('get_track_for_child', {
-          p_child_profile: formData.child_profile as any,
+          p_child_profile: formData.child_profile,
           p_child_age: ageValue,
         });
 
@@ -119,12 +119,12 @@ const AssessmentForm = () => {
           parent_name: formData.parent_name,
           child_name: formData.child_name,
           child_age: ageValue,
-          child_profile: formData.child_profile as any,
+          child_profile: formData.child_profile,
           hearing_ok: formData.hearing_ok,
-          speech_level: formData.speech_level as any,
+          speech_level: formData.speech_level,
           articulation_issue: formData.articulation_issue,
           oral_motor: formData.oral_motor,
-          comprehension_level: formData.comprehension_level as any,
+          comprehension_level: formData.comprehension_level,
           follow_commands: formData.follow_commands,
           joint_attention: formData.joint_attention,
           sensory_issue: formData.sensory_issue,
@@ -136,7 +136,7 @@ const AssessmentForm = () => {
           tag_oral_motor: tagOralMotor,
           tag_joint_attention: tagJointAttention,
           tag_noise: tagNoise,
-        });
+        } as any);
 
       if (childError) {
         console.error('Error inserting child:', childError);

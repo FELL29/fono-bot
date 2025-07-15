@@ -213,9 +213,9 @@ export default function Auth() {
   };
 
   const getTrackForChild = async (profile: string, age: number) => {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('get_track_for_child', {
-        p_child_profile: profile as 'Típico' | 'TEA' | 'Down' | 'Atraso',
+        p_child_profile: profile,
         p_child_age: age,
       });
 

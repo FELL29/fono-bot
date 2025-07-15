@@ -70,7 +70,7 @@ export default function Dashboard() {
         .eq('user_id', user?.id)
         .order('created_at', { ascending: true });
 
-      setChildren(childrenData || []);
+      setChildren((childrenData || []) as any);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
