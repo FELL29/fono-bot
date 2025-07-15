@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, ArrowLeft, CheckCircle, Baby, Brain, MessageCircle, User, Heart, Volume2, Home } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,7 +26,8 @@ const AssessmentForm = () => {
     child_age: "",
     
     // Bloco B - Diagnóstico & Saúde
-    child_profile: "",
+    child_profile: [] as string[],
+    child_profile_other: "",
     hearing_ok: "",
     
     // Bloco C - Expressão Oral
@@ -39,14 +41,22 @@ const AssessmentForm = () => {
     
     // Bloco E - Social & Sensorial
     joint_attention: "",
+    joint_attention_pointing: "",
+    joint_attention_sharing: "",
     sensory_issue: [] as string[],
     
     // Bloco F - Rotina & Preferências
     screen_time: "",
     home_language: "",
+    
+    // Novos campos
+    attention_shared: "",
+    play_type: "",
+    previous_therapy: "",
+    therapy_description: "",
   });
 
-  const totalSteps = 6;
+  const totalSteps = 8;
 
   const updateFormData = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -81,11 +91,12 @@ const AssessmentForm = () => {
     try {
       // Convert age to months for internal processing
       const ageInYears = parseInt(formData.child_age);
-      const ageInMonths = ageInYears * 12; // Convert years to months for function
       
       // Get track for child profile and age using corrected profile mapping
       let profileForTrack = '';
-      switch (formData.child_profile) {
+      const primaryProfile = formData.child_profile[0] || '';
+      
+      switch (primaryProfile) {
         case 'Criança típica':
           profileForTrack = 'Típico';
           break;
@@ -141,9 +152,9 @@ const AssessmentForm = () => {
 
       // Calculate start level based on speech level
       let startLevel = 'A';
-      if (['Não verbal', 'Emite sons / sílabas'].includes(formData.speech_level)) {
+      if (['Não verbal', 'Vocalizações/sílabas (ex.: "ba-ba", "da-da")'].includes(formData.speech_level)) {
         startLevel = 'A';
-      } else if (['Fala 10‑50 palavras', 'Frases de 2‑3 palavras'].includes(formData.speech_level)) {
+      } else if (['10 - 50 palavras isoladas (ex.: "água", "mamã")', 'Frases de 2-3 palavras (ex.: "quer biscoito")'].includes(formData.speech_level)) {
         startLevel = 'B';
       } else {
         startLevel = 'C';
@@ -152,8 +163,8 @@ const AssessmentForm = () => {
       // Generate tags based on responses
       const tagMotricidade = formData.articulation_issue.some(item => item !== "Nenhuma") && formData.articulation_issue.length > 0;
       const tagOralMotor = formData.oral_motor.some(item => item !== "Nenhuma") && formData.oral_motor.length > 0;
-      const tagJointAttention = formData.joint_attention === "Baixa";
-      const tagNoise = formData.sensory_issue.includes("Sensível a ruídos");
+      const tagJointAttention = formData.attention_shared === "Baixa (raramente estabelece contato visual)";
+      const tagNoise = formData.sensory_issue.includes("Sensível a ruídos altos");
 
       // Insert child into database with all assessment data
       console.log('Inserting child with data:', {
@@ -174,7 +185,7 @@ const AssessmentForm = () => {
           articulation_issue: formData.articulation_issue,
           oral_motor: formData.oral_motor,
           follow_commands: formData.follow_commands,
-          joint_attention: formData.joint_attention,
+          joint_attention: formData.attention_shared,
           sensory_issue: formData.sensory_issue,
           screen_time: parseInt(formData.screen_time) || 0,
           home_language: formData.home_language,
@@ -242,7 +253,8 @@ const AssessmentForm = () => {
         parent_name: "",
         child_name: "",
         child_age: "",
-        child_profile: "",
+        child_profile: [],
+        child_profile_other: "",
         hearing_ok: "",
         speech_level: "",
         articulation_issue: [],
@@ -250,9 +262,15 @@ const AssessmentForm = () => {
         comprehension_level: "",
         follow_commands: "",
         joint_attention: "",
+        joint_attention_pointing: "",
+        joint_attention_sharing: "",
         sensory_issue: [],
         screen_time: "",
         home_language: "",
+        attention_shared: "",
+        play_type: "",
+        previous_therapy: "",
+        therapy_description: "",
       });
       setCurrentStep(1);
       
@@ -340,28 +358,35 @@ const AssessmentForm = () => {
             
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Perfil clínico da criança *</Label>
-                <RadioGroup 
-                  value={formData.child_profile} 
-                  onValueChange={(value) => updateFormData("child_profile", value)}
-                >
+                <Label>Perfil clínico da criança (pode escolher mais de uma) *</Label>
+                <div className="space-y-2">
+                  {["Criança típica", "Atraso ou disfunção de fala", "TEA", "Síndrome de Down"].map((option) => (
+                    <div key={option} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`profile-${option}`}
+                        checked={formData.child_profile.includes(option)}
+                        onCheckedChange={(checked) => updateCheckboxArray("child_profile", option, checked as boolean)}
+                      />
+                      <Label htmlFor={`profile-${option}`}>{option}</Label>
+                    </div>
+                  ))}
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Criança típica" id="profile-typical" />
-                    <Label htmlFor="profile-typical">Criança típica (sem diagnóstico)</Label>
+                    <Checkbox
+                      id="profile-other"
+                      checked={formData.child_profile.includes("Outros")}
+                      onCheckedChange={(checked) => updateCheckboxArray("child_profile", "Outros", checked as boolean)}
+                    />
+                    <Label htmlFor="profile-other">Outros:</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Atraso ou disfunção de fala" id="profile-delay" />
-                    <Label htmlFor="profile-delay">Atraso ou disfunção de fala</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="TEA" id="profile-tea" />
-                    <Label htmlFor="profile-tea">Transtorno do Espectro Autista (TEA)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Síndrome de Down" id="profile-down" />
-                    <Label htmlFor="profile-down">Síndrome de Down</Label>
-                  </div>
-                </RadioGroup>
+                  {formData.child_profile.includes("Outros") && (
+                    <Input
+                      value={formData.child_profile_other}
+                      onChange={(e) => updateFormData("child_profile_other", e.target.value)}
+                      placeholder="Especifique outras comorbidades"
+                      className="ml-6"
+                    />
+                  )}
+                </div>
               </div>
               
               <div className="space-y-2">
@@ -399,7 +424,7 @@ const AssessmentForm = () => {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Nível atual de fala *</Label>
+                <Label>Nível atual de Fala - Melhor descrição *</Label>
                 <RadioGroup 
                   value={formData.speech_level} 
                   onValueChange={(value) => updateFormData("speech_level", value)}
@@ -409,28 +434,33 @@ const AssessmentForm = () => {
                     <Label htmlFor="speech-nonverbal">Não verbal</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Emite sons / sílabas" id="speech-sounds" />
-                    <Label htmlFor="speech-sounds">Emite sons / sílabas</Label>
+                    <RadioGroupItem value='Vocalizações/sílabas (ex.: "ba-ba", "da-da")' id="speech-sounds" />
+                    <Label htmlFor="speech-sounds">Vocalizações/sílabas (ex.: "ba-ba", "da-da")</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Fala 10‑50 palavras" id="speech-words" />
-                    <Label htmlFor="speech-words">Fala 10‑50 palavras</Label>
+                    <RadioGroupItem value='10 - 50 palavras isoladas (ex.: "água", "mamã")' id="speech-words" />
+                    <Label htmlFor="speech-words">10 - 50 palavras isoladas (ex.: "água", "mamã")</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Frases de 2‑3 palavras" id="speech-short" />
-                    <Label htmlFor="speech-short">Frases de 2‑3 palavras</Label>
+                    <RadioGroupItem value='Frases de 2-3 palavras (ex.: "quer biscoito")' id="speech-short" />
+                    <Label htmlFor="speech-short">Frases de 2-3 palavras (ex.: "quer biscoito")</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Frases completas" id="speech-complete" />
-                    <Label htmlFor="speech-complete">Frases completas</Label>
+                    <RadioGroupItem value='Frases completas (ex.: "Posso brincar lá fora?")' id="speech-complete" />
+                    <Label htmlFor="speech-complete">Frases completas (ex.: "Posso brincar lá fora?")</Label>
                   </div>
                 </RadioGroup>
               </div>
               
               <div className="space-y-2">
-                <Label>Dificuldades de articulação (pode escolher mais de uma)</Label>
+                <Label>Dificuldades de Articulação - Marque todas *</Label>
                 <div className="space-y-2">
-                  {["Trocas de sons", "Omissões de sons", "Imprecisão geral", "Nenhuma"].map((option) => (
+                  {[
+                    'Troca sons (ex.: "tota" por "coca")',
+                    'Omite sons (ex.: "apo" por "sapo")',
+                    'Fala imprecisa (difícil entender)',
+                    'Nenhuma'
+                  ].map((option) => (
                     <div key={option} className="flex items-center space-x-2">
                       <Checkbox
                         id={`articulation-${option}`}
@@ -444,9 +474,18 @@ const AssessmentForm = () => {
               </div>
               
               <div className="space-y-2">
-                <Label>Questões de motricidade oral</Label>
+                <Label>Motricidade oral e hábitos - Quais desses itens você observa? *</Label>
                 <div className="space-y-2">
-                  {["Baba excessiva", "Dificuldade para mastigar", "Dificuldade para soprar", "Nenhuma"].map((option) => (
+                  {[
+                    "Baba excessiva",
+                    "Dificuldade para mastigar alimentos sólidos",
+                    "Dificuldade para soprar/assoprar",
+                    "Respira mais pela boca que pelo nariz",
+                    "Dificuldade na deglutição",
+                    "Usa chupeta/mamadeira ou chupa dedo",
+                    "Engasga com frequência",
+                    "Nenhuma"
+                  ].map((option) => (
                     <div key={option} className="flex items-center space-x-2">
                       <Checkbox
                         id={`oral-motor-${option}`}
@@ -467,7 +506,7 @@ const AssessmentForm = () => {
           <div className="space-y-6">
             <div className="text-center space-y-4">
               <Brain className="w-12 h-12 text-primary mx-auto" />
-              <h3 className="text-2xl font-bold">Bloco D - Compreensão</h3>
+              <h3 className="text-2xl font-bold">Bloco D - Compreensão de linguagem</h3>
               <p className="text-muted-foreground">O quanto {formData.child_name} entende?</p>
             </div>
 
@@ -479,20 +518,20 @@ const AssessmentForm = () => {
                   onValueChange={(value) => updateFormData("comprehension_level", value)}
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Entende quase tudo" id="comp-all" />
-                    <Label htmlFor="comp-all">Entende quase tudo</Label>
+                    <RadioGroupItem value="Entende quase tudo (ordens complexas)" id="comp-all" />
+                    <Label htmlFor="comp-all">Entende quase tudo (ordens complexas)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Entende ordens simples" id="comp-simple" />
-                    <Label htmlFor="comp-simple">Entende ordens simples</Label>
+                    <RadioGroupItem value="Entende apenas frases simples (ex.: pegue o sapato)" id="comp-simple" />
+                    <Label htmlFor="comp-simple">Entende apenas frases simples (ex.: pegue o sapato)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="Entende muito pouco" id="comp-little" />
                     <Label htmlFor="comp-little">Entende muito pouco</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Responde só a pistas visuais" id="comp-visual" />
-                    <Label htmlFor="comp-visual">Responde só a pistas visuais</Label>
+                    <RadioGroupItem value="Responde apenas a gestões/expressões" id="comp-visual" />
+                    <Label htmlFor="comp-visual">Responde apenas a gestões/expressões</Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -521,37 +560,118 @@ const AssessmentForm = () => {
         return (
           <div className="space-y-6">
             <div className="text-center space-y-4">
-              <Volume2 className="w-12 h-12 text-primary mx-auto" />
-              <h3 className="text-2xl font-bold">Bloco E - Social & Sensorial</h3>
-              <p className="text-muted-foreground">Aspectos sociais e sensoriais de {formData.child_name}</p>
+              <MessageCircle className="w-12 h-12 text-primary mx-auto" />
+              <h3 className="text-2xl font-bold">Comunicação Social (Gestos e Interação)</h3>
+              <p className="text-muted-foreground">Aspectos sociais de {formData.child_name}</p>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Nível de atenção conjunta (olhar compartilhado) *</Label>
+                <Label>Aponta com o dedo para mostrar interesse (ex. apontar para um avião no céu ou um cachorro na rua)? *</Label>
                 <RadioGroup 
-                  value={formData.joint_attention} 
-                  onValueChange={(value) => updateFormData("joint_attention", value)}
+                  value={formData.joint_attention_pointing} 
+                  onValueChange={(value) => updateFormData("joint_attention_pointing", value)}
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Boa" id="attention-good" />
-                    <Label htmlFor="attention-good">Boa</Label>
+                    <RadioGroupItem value="Sempre" id="pointing-always" />
+                    <Label htmlFor="pointing-always">Sempre</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Moderada" id="attention-moderate" />
-                    <Label htmlFor="attention-moderate">Moderada</Label>
+                    <RadioGroupItem value="Raramente" id="pointing-rarely" />
+                    <Label htmlFor="pointing-rarely">Raramente</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Baixa" id="attention-low" />
-                    <Label htmlFor="attention-low">Baixa</Label>
+                    <RadioGroupItem value="Nunca" id="pointing-never" />
+                    <Label htmlFor="pointing-never">Nunca</Label>
                   </div>
                 </RadioGroup>
               </div>
               
               <div className="space-y-2">
-                <Label>Características sensoriais (escolha se houver)</Label>
+                <Label>Traz objetos para você apenas para compartilhar (ex.: mostrar um brinquedo ou um desenho, sem querer que você faça algo)? *</Label>
+                <RadioGroup 
+                  value={formData.joint_attention_sharing} 
+                  onValueChange={(value) => updateFormData("joint_attention_sharing", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Sempre" id="sharing-always" />
+                    <Label htmlFor="sharing-always">Sempre</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Raramente" id="sharing-rarely" />
+                    <Label htmlFor="sharing-rarely">Raramente</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Nunca" id="sharing-never" />
+                    <Label htmlFor="sharing-never">Nunca</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 6:
+        return (
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <Volume2 className="w-12 h-12 text-primary mx-auto" />
+              <h3 className="text-2xl font-bold">Interação Social e Comportamento</h3>
+              <p className="text-muted-foreground">Comportamento e brincadeiras de {formData.child_name}</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Atenção conjunta (olhar compartilhado) *</Label>
+                <RadioGroup 
+                  value={formData.attention_shared} 
+                  onValueChange={(value) => updateFormData("attention_shared", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Boa (olha quando chamada, compartilha interesses)" id="attention-good" />
+                    <Label htmlFor="attention-good">Boa (olha quando chamada, compartilha interesses)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Moderada (responde às vezes)" id="attention-moderate" />
+                    <Label htmlFor="attention-moderate">Moderada (responde às vezes)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Baixa (raramente estabelece contato visual)" id="attention-low" />
+                    <Label htmlFor="attention-low">Baixa (raramente estabelece contato visual)</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Como a criança brinca? *</Label>
+                <RadioGroup 
+                  value={formData.play_type} 
+                  onValueChange={(value) => updateFormData("play_type", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Brincadeiras funcionais (ex.: empurrar carrinho)" id="play-functional" />
+                    <Label htmlFor="play-functional">Brincadeiras funcionais (ex.: empurrar carrinho)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Jogos simbólicos (ex.: fingir que cozinha)" id="play-symbolic" />
+                    <Label htmlFor="play-symbolic">Jogos simbólicos (ex.: fingir que cozinha)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Padrões repetitivos (ex.: alinhar brinquedos)" id="play-repetitive" />
+                    <Label htmlFor="play-repetitive">Padrões repetitivos (ex.: alinhar brinquedos)</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Características sensoriais (marque todas) *</Label>
                 <div className="space-y-2">
-                  {["Sensível a ruídos", "Busca muito movimento", "Seletivo alimentar", "Nenhuma"].map((option) => (
+                  {[
+                    "Sensível a ruídos altos",
+                    "Evita tocar certas texturas (ex.: massinha, areia)",
+                    "Seletividade alimentar extrema",
+                    "Nenhuma"
+                  ].map((option) => (
                     <div key={option} className="flex items-center space-x-2">
                       <Checkbox
                         id={`sensory-${option}`}
@@ -567,29 +687,16 @@ const AssessmentForm = () => {
           </div>
         );
 
-      case 6:
+      case 7:
         return (
           <div className="space-y-6">
             <div className="text-center space-y-4">
               <Home className="w-12 h-12 text-primary mx-auto" />
-              <h3 className="text-2xl font-bold">Bloco F - Rotina & Preferências</h3>
-              <p className="text-muted-foreground">Informações sobre rotina e preferências</p>
+              <h3 className="text-2xl font-bold">Contexto Familiar e Ambiente</h3>
+              <p className="text-muted-foreground">Informações sobre rotina e ambiente</p>
             </div>
 
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Tempo de tela diário (horas) *</Label>
-                <Input
-                  type="number"
-                  min="0"
-                  max="24"
-                  value={formData.screen_time}
-                  onChange={(e) => updateFormData("screen_time", e.target.value)}
-                  placeholder="Ex: 2"
-                  required
-                />
-              </div>
-              
               <div className="space-y-2">
                 <Label>Idioma(s) falado(s) em casa *</Label>
                 <RadioGroup 
@@ -605,11 +712,79 @@ const AssessmentForm = () => {
                     <Label htmlFor="lang-mixed">Português + outro idioma</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Somente outro(s) idioma(s)" id="lang-other" />
-                    <Label htmlFor="lang-other">Somente outro(s) idioma(s)</Label>
+                    <RadioGroupItem value="Outro(s) idioma(s)" id="lang-other" />
+                    <Label htmlFor="lang-other">Outro(s) idioma(s)</Label>
                   </div>
                 </RadioGroup>
               </div>
+              
+              <div className="space-y-2">
+                <Label>Tempo de tela diário (TV/Tablet/Celular) *</Label>
+                <RadioGroup 
+                  value={formData.screen_time} 
+                  onValueChange={(value) => updateFormData("screen_time", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Menos de 1 hora" id="screen-1" />
+                    <Label htmlFor="screen-1">Menos de 1 hora</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Entre 1 e 2 horas" id="screen-2" />
+                    <Label htmlFor="screen-2">Entre 1 e 2 horas</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Entre 2 a 3 horas" id="screen-3" />
+                    <Label htmlFor="screen-3">Entre 2 a 3 horas</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Mais de 3 horas" id="screen-4" />
+                    <Label htmlFor="screen-4">Mais de 3 horas</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 8:
+        return (
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <Heart className="w-12 h-12 text-primary mx-auto" />
+              <h3 className="text-2xl font-bold">Histórico de Terapia</h3>
+              <p className="text-muted-foreground">Informações sobre terapias anteriores</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Já fez terapia fonoaudiológica anteriormente? *</Label>
+                <RadioGroup 
+                  value={formData.previous_therapy} 
+                  onValueChange={(value) => updateFormData("previous_therapy", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Sim" id="therapy-yes" />
+                    <Label htmlFor="therapy-yes">Sim</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Não" id="therapy-no" />
+                    <Label htmlFor="therapy-no">Não</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              {formData.previous_therapy === "Sim" && (
+                <div className="space-y-2">
+                  <Label htmlFor="therapy_description">Breve relato sobre a terapia anterior</Label>
+                  <Textarea
+                    id="therapy_description"
+                    value={formData.therapy_description}
+                    onChange={(e) => updateFormData("therapy_description", e.target.value)}
+                    placeholder="Descreva brevemente como foi a experiência com a fonoaudiologia anterior..."
+                    rows={4}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="bg-muted/50 p-4 rounded-lg">
@@ -637,18 +812,27 @@ const AssessmentForm = () => {
                formData.child_name.trim() !== '' && 
                formData.child_age !== '';
       case 2: 
-        return formData.child_profile !== '' && 
+        return formData.child_profile.length > 0 && 
                formData.hearing_ok !== '';
       case 3: 
-        return formData.speech_level !== '';
+        return formData.speech_level !== '' &&
+               formData.articulation_issue.length > 0 &&
+               formData.oral_motor.length > 0;
       case 4: 
         return formData.comprehension_level !== '' && 
                formData.follow_commands !== '';
       case 5: 
-        return formData.joint_attention !== '';
+        return formData.joint_attention_pointing !== '' &&
+               formData.joint_attention_sharing !== '';
       case 6: 
+        return formData.attention_shared !== '' &&
+               formData.play_type !== '' &&
+               formData.sensory_issue.length > 0;
+      case 7: 
         return formData.screen_time !== '' && 
                formData.home_language !== '';
+      case 8:
+        return formData.previous_therapy !== '';
       default: return false;
     }
   };
