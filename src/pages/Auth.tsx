@@ -16,6 +16,7 @@ export default function Auth() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [resetMode, setResetMode] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -42,6 +43,9 @@ export default function Auth() {
     first_child_profile: '',
   });
 
+  // Reset Password State
+  const [resetEmail, setResetEmail] = useState('');
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -50,16 +54,64 @@ export default function Auth() {
       const { error } = await signIn(signInData.email, signInData.password);
       
       if (error) {
-        toast({
-          title: 'Erro ao entrar',
-          description: error.message,
-          variant: 'destructive',
-        });
+        if (error.message.includes('Invalid login credentials')) {
+          toast({
+            title: 'Credenciais inválidas',
+            description: 'Email ou senha incorretos. Verifique se confirmou seu email.',
+            variant: 'destructive',
+          });
+        } else if (error.message.includes('Email not confirmed')) {
+          toast({
+            title: 'Email não confirmado',
+            description: 'Verifique seu email e clique no link de confirmação.',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Erro ao entrar',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
       } else {
         toast({
           title: 'Login realizado!',
           description: 'Redirecionando para o dashboard...',
         });
+      }
+    } catch (error) {
+      toast({
+        title: 'Erro inesperado',
+        description: 'Ocorreu um erro inesperado. Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        toast({
+          title: 'Erro ao enviar email',
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Email enviado!',
+          description: 'Verifique seu email para redefinir a senha.',
+        });
+        setResetMode(false);
+        setResetEmail('');
       }
     } catch (error) {
       toast({
@@ -215,32 +267,74 @@ export default function Auth() {
               </TabsList>
 
               <TabsContent value="signin" className="space-y-4 mt-4">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={signInData.email}
-                      onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-password">Senha</Label>
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      value={signInData.password}
-                      onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Entrando...' : 'Entrar'}
-                  </Button>
-                </form>
+                {!resetMode ? (
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email">Email</Label>
+                      <Input
+                        id="signin-email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        value={signInData.email}
+                        onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-password">Senha</Label>
+                      <Input
+                        id="signin-password"
+                        type="password"
+                        value={signInData.password}
+                        onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? 'Entrando...' : 'Entrar'}
+                    </Button>
+                    <div className="text-center">
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="text-sm text-muted-foreground"
+                        onClick={() => setResetMode(true)}
+                      >
+                        Esqueci minha senha
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="reset-email">Email para recuperação</Label>
+                      <Input
+                        id="reset-email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? 'Enviando...' : 'Enviar link de recuperação'}
+                    </Button>
+                    <div className="text-center">
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="text-sm text-muted-foreground"
+                        onClick={() => {
+                          setResetMode(false);
+                          setResetEmail('');
+                        }}
+                      >
+                        Voltar ao login
+                      </Button>
+                    </div>
+                  </form>
+                )}
               </TabsContent>
 
               <TabsContent value="signup" className="space-y-4 mt-4">
