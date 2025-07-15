@@ -80,19 +80,64 @@ const AssessmentForm = () => {
     setIsLoading(true);
     
     try {
-      // Convert age string to number (months)
-      const ageValue = parseInt(formData.child_age);
+      // Convert age to months for internal processing
+      const ageInYears = parseInt(formData.child_age);
+      const ageInMonths = ageInYears * 12; // Convert years to months for function
       
-      // Get track for child profile and age using direct SQL query
-      const { data: trackId, error: trackError } = await (supabase as any)
-        .rpc('get_track_for_child', {
-          p_child_profile: formData.child_profile,
-          p_child_age: ageValue,
-        });
+      // Get track for child profile and age using corrected profile mapping
+      let profileForTrack = '';
+      switch (formData.child_profile) {
+        case 'Criança típica':
+          profileForTrack = 'Típico';
+          break;
+        case 'Atraso ou disfunção de fala':
+          profileForTrack = 'Atraso';
+          break;
+        case 'TEA':
+          profileForTrack = 'TEA';
+          break;
+        case 'Síndrome de Down':
+          profileForTrack = 'Down';
+          break;
+        default:
+          profileForTrack = 'Típico';
+      }
+      
+      // Determine age range based on years
+      let ageRange = '';
+      if (ageInYears >= 1 && ageInYears <= 3) {
+        ageRange = '1-3';
+      } else if (ageInYears >= 4 && ageInYears <= 6) {
+        ageRange = '4-6';
+      } else if (ageInYears >= 7 && ageInYears <= 10) {
+        ageRange = '7-10';
+      } else if (ageInYears >= 11 && ageInYears <= 14) {
+        ageRange = '11-14';
+      } else {
+        ageRange = '1-3'; // default
+      }
+      
+      const trackProfile = `${profileForTrack}_${ageRange}`;
+      
+      // Find track directly from database instead of using RPC
+      const { data: trackData, error: trackError } = await supabase
+        .from('tracks')
+        .select('id')
+        .eq('profile', trackProfile)
+        .single();
 
-      if (trackError) {
-        console.error('Error getting track:', trackError);
-        throw new Error('Erro ao determinar o plano de atividades');
+      let trackId = null;
+      if (trackError || !trackData) {
+        console.error('Track not found for profile:', trackProfile, 'Error:', trackError);
+        // Try to find any track as fallback
+        const { data: fallbackTrack } = await supabase
+          .from('tracks')
+          .select('id')
+          .limit(1)
+          .single();
+        trackId = fallbackTrack?.id;
+      } else {
+        trackId = trackData.id;
       }
 
       // Calculate start level based on speech level
@@ -118,7 +163,7 @@ const AssessmentForm = () => {
           user_id: user?.id,
           parent_name: formData.parent_name,
           child_name: formData.child_name,
-          child_age: ageValue,
+          child_age: ageInMonths, // Store age in months in database
           child_profile: formData.child_profile,
           hearing_ok: formData.hearing_ok,
           speech_level: formData.speech_level,
@@ -260,18 +305,21 @@ const AssessmentForm = () => {
               </div>
               
               <div className="space-y-2">
-                <Label>Idade da criança em meses *</Label>
-                <Input
-                  type="number"
-                  min="12"
-                  max="168"
-                  value={formData.child_age}
-                  onChange={(e) => updateFormData("child_age", e.target.value)}
-                  placeholder="Ex: 36 (para 3 anos)"
-                  required
-                />
+                <Label>Idade da criança em anos *</Label>
+                <Select onValueChange={(value) => updateFormData("child_age", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a idade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 14 }, (_, i) => i + 1).map((age) => (
+                      <SelectItem key={age} value={age.toString()}>
+                        {age} {age === 1 ? 'ano' : 'anos'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-sm text-muted-foreground">
-                  Digite a idade em meses (12-168 meses = 1-14 anos)
+                  Selecione a idade da criança em anos completos
                 </p>
               </div>
             </div>
