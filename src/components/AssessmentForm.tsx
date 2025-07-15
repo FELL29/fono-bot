@@ -159,7 +159,7 @@ const AssessmentForm = () => {
       console.log('Inserting child with data:', {
         user_id: user?.id,
         child_name: formData.child_name,
-        child_age: ageInMonths,
+        child_age: ageInYears,
         track_id: trackId
       });
 
@@ -169,7 +169,7 @@ const AssessmentForm = () => {
           user_id: user?.id,
           parent_name: formData.parent_name,
           child_name: formData.child_name,
-          child_age: ageInMonths, // Store age in months in database
+          child_age: ageInYears, // Store age in years (constraint expects 1-14)
           hearing_ok: formData.hearing_ok,
           articulation_issue: formData.articulation_issue,
           oral_motor: formData.oral_motor,
