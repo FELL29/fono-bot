@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { PlusCircle, Users, Calendar, CheckCircle, MessageCircle, LogOut } from 'lucide-react';
+import { PlusCircle, Users, Calendar, CheckCircle, MessageCircle, LogOut, Home } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -189,6 +189,15 @@ export default function Dashboard() {
             </div>
             
             <div className="flex items-center space-x-4">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate('/')}
+                className="text-muted-foreground hover:text-primary"
+              >
+                <Home className="w-4 h-4 mr-2" />
+                Início
+              </Button>
               <Badge variant={getPlanBadgeVariant(profile?.plan || 'TRIAL')}>
                 {profile?.plan === 'TRIAL' ? 'Teste Grátis' : profile?.plan}
               </Badge>
