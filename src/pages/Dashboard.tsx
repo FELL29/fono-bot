@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { PlusCircle, Users, Calendar, CheckCircle, MessageCircle, LogOut, Home, BookOpen } from 'lucide-react';
+import { PlusCircle, Users, Calendar, CheckCircle, MessageCircle, LogOut, Home } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import WhatsAppSimulation from '@/components/WhatsAppSimulation';
@@ -274,7 +274,7 @@ export default function Dashboard() {
         <WhatsAppSimulation />
 
         {/* Quick Stats */}
-        <div className="grid gap-6 md:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Crianças</CardTitle>
@@ -303,22 +303,6 @@ export default function Dashboard() {
             <CardContent>
               <div className="text-2xl font-bold">
                 {profile?.plan === 'TRIAL' ? 'Grátis' : profile?.plan}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card 
-            className="cursor-pointer transition-all hover:shadow-warm hover:scale-[1.02]"
-            onClick={() => navigate('/trilhas')}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ver Trilhas</CardTitle>
-              <BookOpen className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">📚</div>
-              <div className="text-xs text-muted-foreground">
-                Explorar atividades
               </div>
             </CardContent>
           </Card>

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { MessageCircle, ArrowLeft } from 'lucide-react';
+import { MessageCircle, ArrowLeft, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function Auth() {
@@ -46,6 +46,34 @@ export default function Auth() {
   // Reset Password State
   const [resetEmail, setResetEmail] = useState('');
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+
+      if (error) {
+        toast({
+          title: 'Erro no login com Google',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Erro inesperado',
+        description: 'Ocorreu um erro inesperado. Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -57,13 +85,7 @@ export default function Auth() {
         if (error.message.includes('Invalid login credentials')) {
           toast({
             title: 'Credenciais inválidas',
-            description: 'Email ou senha incorretos. Verifique se confirmou seu email.',
-            variant: 'destructive',
-          });
-        } else if (error.message.includes('Email not confirmed')) {
-          toast({
-            title: 'Email não confirmado',
-            description: 'Verifique seu email e clique no link de confirmação.',
+            description: 'Email ou senha incorretos.',
             variant: 'destructive',
           });
         } else {
@@ -198,7 +220,7 @@ export default function Auth() {
 
         toast({
           title: 'Conta criada!',
-          description: 'Verifique seu email para confirmar a conta.',
+          description: 'Redirecionando para o dashboard...',
         });
       }
     } catch (error) {
@@ -268,42 +290,65 @@ export default function Auth() {
 
               <TabsContent value="signin" className="space-y-4 mt-4">
                 {!resetMode ? (
-                  <form onSubmit={handleSignIn} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-email">Email</Label>
-                      <Input
-                        id="signin-email"
-                        type="email"
-                        placeholder="seu@email.com"
-                        value={signInData.email}
-                        onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-password">Senha</Label>
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        value={signInData.password}
-                        onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? 'Entrando...' : 'Entrar'}
+                  <div className="space-y-4">
+                    <Button
+                      onClick={handleGoogleSignIn}
+                      variant="outline"
+                      className="w-full"
+                      disabled={loading}
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      Entrar com Google
                     </Button>
-                    <div className="text-center">
-                      <Button
-                        type="button"
-                        variant="link"
-                        className="text-sm text-muted-foreground"
-                        onClick={() => setResetMode(true)}
-                      >
-                        Esqueci minha senha
-                      </Button>
+                    
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">
+                          Ou continue com
+                        </span>
+                      </div>
                     </div>
-                  </form>
+
+                    <form onSubmit={handleSignIn} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="signin-email">Email</Label>
+                        <Input
+                          id="signin-email"
+                          type="email"
+                          placeholder="seu@email.com"
+                          value={signInData.email}
+                          onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signin-password">Senha</Label>
+                        <Input
+                          id="signin-password"
+                          type="password"
+                          value={signInData.password}
+                          onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <Button type="submit" className="w-full" disabled={loading}>
+                        {loading ? 'Entrando...' : 'Entrar'}
+                      </Button>
+                      <div className="text-center">
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="text-sm text-muted-foreground"
+                          onClick={() => setResetMode(true)}
+                        >
+                          Esqueci minha senha
+                        </Button>
+                      </div>
+                    </form>
+                  </div>
                 ) : (
                   <form onSubmit={handleResetPassword} className="space-y-4">
                     <div className="space-y-2">
@@ -338,7 +383,29 @@ export default function Auth() {
               </TabsContent>
 
               <TabsContent value="signup" className="space-y-4 mt-4">
-                <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-4">
+                  <Button
+                    onClick={handleGoogleSignIn}
+                    variant="outline"
+                    className="w-full"
+                    disabled={loading}
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    Criar conta com Google
+                  </Button>
+                  
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Ou continue com
+                      </span>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="parent-name">Seu nome</Label>
@@ -448,10 +515,11 @@ export default function Auth() {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Criando conta...' : 'Criar conta'}
-                  </Button>
-                </form>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? 'Criando conta...' : 'Criar conta'}
+                    </Button>
+                  </form>
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>
