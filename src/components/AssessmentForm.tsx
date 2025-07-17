@@ -389,25 +389,34 @@ const AssessmentForm = () => {
                 </div>
               </div>
               
-              <div className="space-y-2">
+                <div className="space-y-2">
                 <Label>Audição verificada (audiometria dentro da normalidade)? *</Label>
-                <RadioGroup 
-                  value={formData.hearing_ok} 
-                  onValueChange={(value) => updateFormData("hearing_ok", value)}
-                >
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Sim" id="hearing-yes" />
+                    <Checkbox 
+                      id="hearing-yes"
+                      checked={formData.hearing_ok === "Sim"}
+                      onCheckedChange={(checked) => updateFormData("hearing_ok", checked ? "Sim" : "")}
+                    />
                     <Label htmlFor="hearing-yes">Sim</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Não" id="hearing-no" />
+                    <Checkbox 
+                      id="hearing-no"
+                      checked={formData.hearing_ok === "Não"}
+                      onCheckedChange={(checked) => updateFormData("hearing_ok", checked ? "Não" : "")}
+                    />
                     <Label htmlFor="hearing-no">Não</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Não sei" id="hearing-unknown" />
+                    <Checkbox 
+                      id="hearing-unknown"
+                      checked={formData.hearing_ok === "Não sei"}
+                      onCheckedChange={(checked) => updateFormData("hearing_ok", checked ? "Não sei" : "")}
+                    />
                     <Label htmlFor="hearing-unknown">Não sei</Label>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
             </div>
           </div>
@@ -425,31 +434,48 @@ const AssessmentForm = () => {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Nível atual de Fala - Melhor descrição *</Label>
-                <RadioGroup 
-                  value={formData.speech_level} 
-                  onValueChange={(value) => updateFormData("speech_level", value)}
-                >
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Não verbal" id="speech-nonverbal" />
+                    <Checkbox 
+                      id="speech-nonverbal"
+                      checked={formData.speech_level === "Não verbal"}
+                      onCheckedChange={(checked) => updateFormData("speech_level", checked ? "Não verbal" : "")}
+                    />
                     <Label htmlFor="speech-nonverbal">Não verbal</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value='Vocalizações/sílabas (ex.: "ba-ba", "da-da")' id="speech-sounds" />
+                    <Checkbox 
+                      id="speech-sounds"
+                      checked={formData.speech_level === 'Vocalizações/sílabas (ex.: "ba-ba", "da-da")'}
+                      onCheckedChange={(checked) => updateFormData("speech_level", checked ? 'Vocalizações/sílabas (ex.: "ba-ba", "da-da")' : "")}
+                    />
                     <Label htmlFor="speech-sounds">Vocalizações/sílabas (ex.: "ba-ba", "da-da")</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value='10 - 50 palavras isoladas (ex.: "água", "mamã")' id="speech-words" />
+                    <Checkbox 
+                      id="speech-words"
+                      checked={formData.speech_level === '10 - 50 palavras isoladas (ex.: "água", "mamã")'}
+                      onCheckedChange={(checked) => updateFormData("speech_level", checked ? '10 - 50 palavras isoladas (ex.: "água", "mamã")' : "")}
+                    />
                     <Label htmlFor="speech-words">10 - 50 palavras isoladas (ex.: "água", "mamã")</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value='Frases de 2-3 palavras (ex.: "quer biscoito")' id="speech-short" />
+                    <Checkbox 
+                      id="speech-short"
+                      checked={formData.speech_level === 'Frases de 2-3 palavras (ex.: "quer biscoito")'}
+                      onCheckedChange={(checked) => updateFormData("speech_level", checked ? 'Frases de 2-3 palavras (ex.: "quer biscoito")' : "")}
+                    />
                     <Label htmlFor="speech-short">Frases de 2-3 palavras (ex.: "quer biscoito")</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value='Frases completas (ex.: "Posso brincar lá fora?")' id="speech-complete" />
+                    <Checkbox 
+                      id="speech-complete"
+                      checked={formData.speech_level === 'Frases completas (ex.: "Posso brincar lá fora?")'}
+                      onCheckedChange={(checked) => updateFormData("speech_level", checked ? 'Frases completas (ex.: "Posso brincar lá fora?")' : "")}
+                    />
                     <Label htmlFor="speech-complete">Frases completas (ex.: "Posso brincar lá fora?")</Label>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
               
               <div className="space-y-2">
@@ -513,44 +539,62 @@ const AssessmentForm = () => {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Compreensão de linguagem *</Label>
-                <RadioGroup 
-                  value={formData.comprehension_level} 
-                  onValueChange={(value) => updateFormData("comprehension_level", value)}
-                >
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Entende quase tudo (ordens complexas)" id="comp-all" />
+                    <Checkbox 
+                      id="comp-all"
+                      checked={formData.comprehension_level === "Entende quase tudo (ordens complexas)"}
+                      onCheckedChange={(checked) => updateFormData("comprehension_level", checked ? "Entende quase tudo (ordens complexas)" : "")}
+                    />
                     <Label htmlFor="comp-all">Entende quase tudo (ordens complexas)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Entende apenas frases simples (ex.: pegue o sapato)" id="comp-simple" />
+                    <Checkbox 
+                      id="comp-simple"
+                      checked={formData.comprehension_level === "Entende apenas frases simples (ex.: pegue o sapato)"}
+                      onCheckedChange={(checked) => updateFormData("comprehension_level", checked ? "Entende apenas frases simples (ex.: pegue o sapato)" : "")}
+                    />
                     <Label htmlFor="comp-simple">Entende apenas frases simples (ex.: pegue o sapato)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Entende muito pouco" id="comp-little" />
+                    <Checkbox 
+                      id="comp-little"
+                      checked={formData.comprehension_level === "Entende muito pouco"}
+                      onCheckedChange={(checked) => updateFormData("comprehension_level", checked ? "Entende muito pouco" : "")}
+                    />
                     <Label htmlFor="comp-little">Entende muito pouco</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Responde apenas a gestões/expressões" id="comp-visual" />
+                    <Checkbox 
+                      id="comp-visual"
+                      checked={formData.comprehension_level === "Responde apenas a gestões/expressões"}
+                      onCheckedChange={(checked) => updateFormData("comprehension_level", checked ? "Responde apenas a gestões/expressões" : "")}
+                    />
                     <Label htmlFor="comp-visual">Responde apenas a gestões/expressões</Label>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
               
               <div className="space-y-2">
                 <Label>Segue instruções simples sem ajuda visual? *</Label>
-                <RadioGroup 
-                  value={formData.follow_commands} 
-                  onValueChange={(value) => updateFormData("follow_commands", value)}
-                >
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Sim" id="follow-yes" />
+                    <Checkbox 
+                      id="follow-yes"
+                      checked={formData.follow_commands === "Sim"}
+                      onCheckedChange={(checked) => updateFormData("follow_commands", checked ? "Sim" : "")}
+                    />
                     <Label htmlFor="follow-yes">Sim</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Não" id="follow-no" />
+                    <Checkbox 
+                      id="follow-no"
+                      checked={formData.follow_commands === "Não"}
+                      onCheckedChange={(checked) => updateFormData("follow_commands", checked ? "Não" : "")}
+                    />
                     <Label htmlFor="follow-no">Não</Label>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
             </div>
           </div>
@@ -568,44 +612,62 @@ const AssessmentForm = () => {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Aponta com o dedo para mostrar interesse (ex. apontar para um avião no céu ou um cachorro na rua)? *</Label>
-                <RadioGroup 
-                  value={formData.joint_attention_pointing} 
-                  onValueChange={(value) => updateFormData("joint_attention_pointing", value)}
-                >
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Sempre" id="pointing-always" />
+                    <Checkbox 
+                      id="pointing-always"
+                      checked={formData.joint_attention_pointing === "Sempre"}
+                      onCheckedChange={(checked) => updateFormData("joint_attention_pointing", checked ? "Sempre" : "")}
+                    />
                     <Label htmlFor="pointing-always">Sempre</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Raramente" id="pointing-rarely" />
+                    <Checkbox 
+                      id="pointing-rarely"
+                      checked={formData.joint_attention_pointing === "Raramente"}
+                      onCheckedChange={(checked) => updateFormData("joint_attention_pointing", checked ? "Raramente" : "")}
+                    />
                     <Label htmlFor="pointing-rarely">Raramente</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Nunca" id="pointing-never" />
+                    <Checkbox 
+                      id="pointing-never"
+                      checked={formData.joint_attention_pointing === "Nunca"}
+                      onCheckedChange={(checked) => updateFormData("joint_attention_pointing", checked ? "Nunca" : "")}
+                    />
                     <Label htmlFor="pointing-never">Nunca</Label>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
               
               <div className="space-y-2">
                 <Label>Traz objetos para você apenas para compartilhar (ex.: mostrar um brinquedo ou um desenho, sem querer que você faça algo)? *</Label>
-                <RadioGroup 
-                  value={formData.joint_attention_sharing} 
-                  onValueChange={(value) => updateFormData("joint_attention_sharing", value)}
-                >
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Sempre" id="sharing-always" />
+                    <Checkbox 
+                      id="sharing-always"
+                      checked={formData.joint_attention_sharing === "Sempre"}
+                      onCheckedChange={(checked) => updateFormData("joint_attention_sharing", checked ? "Sempre" : "")}
+                    />
                     <Label htmlFor="sharing-always">Sempre</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Raramente" id="sharing-rarely" />
+                    <Checkbox 
+                      id="sharing-rarely"
+                      checked={formData.joint_attention_sharing === "Raramente"}
+                      onCheckedChange={(checked) => updateFormData("joint_attention_sharing", checked ? "Raramente" : "")}
+                    />
                     <Label htmlFor="sharing-rarely">Raramente</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Nunca" id="sharing-never" />
+                    <Checkbox 
+                      id="sharing-never"
+                      checked={formData.joint_attention_sharing === "Nunca"}
+                      onCheckedChange={(checked) => updateFormData("joint_attention_sharing", checked ? "Nunca" : "")}
+                    />
                     <Label htmlFor="sharing-never">Nunca</Label>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
             </div>
           </div>
@@ -623,44 +685,62 @@ const AssessmentForm = () => {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Atenção conjunta (olhar compartilhado) *</Label>
-                <RadioGroup 
-                  value={formData.attention_shared} 
-                  onValueChange={(value) => updateFormData("attention_shared", value)}
-                >
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Boa (olha quando chamada, compartilha interesses)" id="attention-good" />
+                    <Checkbox 
+                      id="attention-good"
+                      checked={formData.attention_shared === "Boa (olha quando chamada, compartilha interesses)"}
+                      onCheckedChange={(checked) => updateFormData("attention_shared", checked ? "Boa (olha quando chamada, compartilha interesses)" : "")}
+                    />
                     <Label htmlFor="attention-good">Boa (olha quando chamada, compartilha interesses)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Moderada (responde às vezes)" id="attention-moderate" />
+                    <Checkbox 
+                      id="attention-moderate"
+                      checked={formData.attention_shared === "Moderada (responde às vezes)"}
+                      onCheckedChange={(checked) => updateFormData("attention_shared", checked ? "Moderada (responde às vezes)" : "")}
+                    />
                     <Label htmlFor="attention-moderate">Moderada (responde às vezes)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Baixa (raramente estabelece contato visual)" id="attention-low" />
+                    <Checkbox 
+                      id="attention-low"
+                      checked={formData.attention_shared === "Baixa (raramente estabelece contato visual)"}
+                      onCheckedChange={(checked) => updateFormData("attention_shared", checked ? "Baixa (raramente estabelece contato visual)" : "")}
+                    />
                     <Label htmlFor="attention-low">Baixa (raramente estabelece contato visual)</Label>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
               
               <div className="space-y-2">
                 <Label>Como a criança brinca? *</Label>
-                <RadioGroup 
-                  value={formData.play_type} 
-                  onValueChange={(value) => updateFormData("play_type", value)}
-                >
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Brincadeiras funcionais (ex.: empurrar carrinho)" id="play-functional" />
+                    <Checkbox 
+                      id="play-functional"
+                      checked={formData.play_type === "Brincadeiras funcionais (ex.: empurrar carrinho)"}
+                      onCheckedChange={(checked) => updateFormData("play_type", checked ? "Brincadeiras funcionais (ex.: empurrar carrinho)" : "")}
+                    />
                     <Label htmlFor="play-functional">Brincadeiras funcionais (ex.: empurrar carrinho)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Jogos simbólicos (ex.: fingir que cozinha)" id="play-symbolic" />
+                    <Checkbox 
+                      id="play-symbolic"
+                      checked={formData.play_type === "Jogos simbólicos (ex.: fingir que cozinha)"}
+                      onCheckedChange={(checked) => updateFormData("play_type", checked ? "Jogos simbólicos (ex.: fingir que cozinha)" : "")}
+                    />
                     <Label htmlFor="play-symbolic">Jogos simbólicos (ex.: fingir que cozinha)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Padrões repetitivos (ex.: alinhar brinquedos)" id="play-repetitive" />
+                    <Checkbox 
+                      id="play-repetitive"
+                      checked={formData.play_type === "Padrões repetitivos (ex.: alinhar brinquedos)"}
+                      onCheckedChange={(checked) => updateFormData("play_type", checked ? "Padrões repetitivos (ex.: alinhar brinquedos)" : "")}
+                    />
                     <Label htmlFor="play-repetitive">Padrões repetitivos (ex.: alinhar brinquedos)</Label>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
               
               <div className="space-y-2">
@@ -699,48 +779,70 @@ const AssessmentForm = () => {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Idioma(s) falado(s) em casa *</Label>
-                <RadioGroup 
-                  value={formData.home_language} 
-                  onValueChange={(value) => updateFormData("home_language", value)}
-                >
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Apenas Português" id="lang-pt" />
+                    <Checkbox 
+                      id="lang-pt"
+                      checked={formData.home_language === "Apenas Português"}
+                      onCheckedChange={(checked) => updateFormData("home_language", checked ? "Apenas Português" : "")}
+                    />
                     <Label htmlFor="lang-pt">Apenas Português</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Português + outro idioma" id="lang-mixed" />
+                    <Checkbox 
+                      id="lang-mixed"
+                      checked={formData.home_language === "Português + outro idioma"}
+                      onCheckedChange={(checked) => updateFormData("home_language", checked ? "Português + outro idioma" : "")}
+                    />
                     <Label htmlFor="lang-mixed">Português + outro idioma</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Outro(s) idioma(s)" id="lang-other" />
+                    <Checkbox 
+                      id="lang-other"
+                      checked={formData.home_language === "Outro(s) idioma(s)"}
+                      onCheckedChange={(checked) => updateFormData("home_language", checked ? "Outro(s) idioma(s)" : "")}
+                    />
                     <Label htmlFor="lang-other">Outro(s) idioma(s)</Label>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
               
               <div className="space-y-2">
                 <Label>Tempo de tela diário (TV/Tablet/Celular) *</Label>
-                <RadioGroup 
-                  value={formData.screen_time} 
-                  onValueChange={(value) => updateFormData("screen_time", value)}
-                >
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Menos de 1 hora" id="screen-1" />
+                    <Checkbox 
+                      id="screen-1"
+                      checked={formData.screen_time === "Menos de 1 hora"}
+                      onCheckedChange={(checked) => updateFormData("screen_time", checked ? "Menos de 1 hora" : "")}
+                    />
                     <Label htmlFor="screen-1">Menos de 1 hora</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Entre 1 e 2 horas" id="screen-2" />
+                    <Checkbox 
+                      id="screen-2"
+                      checked={formData.screen_time === "Entre 1 e 2 horas"}
+                      onCheckedChange={(checked) => updateFormData("screen_time", checked ? "Entre 1 e 2 horas" : "")}
+                    />
                     <Label htmlFor="screen-2">Entre 1 e 2 horas</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Entre 2 a 3 horas" id="screen-3" />
+                    <Checkbox 
+                      id="screen-3"
+                      checked={formData.screen_time === "Entre 2 a 3 horas"}
+                      onCheckedChange={(checked) => updateFormData("screen_time", checked ? "Entre 2 a 3 horas" : "")}
+                    />
                     <Label htmlFor="screen-3">Entre 2 a 3 horas</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Mais de 3 horas" id="screen-4" />
+                    <Checkbox 
+                      id="screen-4"
+                      checked={formData.screen_time === "Mais de 3 horas"}
+                      onCheckedChange={(checked) => updateFormData("screen_time", checked ? "Mais de 3 horas" : "")}
+                    />
                     <Label htmlFor="screen-4">Mais de 3 horas</Label>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
             </div>
           </div>
@@ -758,19 +860,24 @@ const AssessmentForm = () => {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Já fez terapia fonoaudiológica anteriormente? *</Label>
-                <RadioGroup 
-                  value={formData.previous_therapy} 
-                  onValueChange={(value) => updateFormData("previous_therapy", value)}
-                >
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Sim" id="therapy-yes" />
+                    <Checkbox 
+                      id="therapy-yes"
+                      checked={formData.previous_therapy === "Sim"}
+                      onCheckedChange={(checked) => updateFormData("previous_therapy", checked ? "Sim" : "")}
+                    />
                     <Label htmlFor="therapy-yes">Sim</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Não" id="therapy-no" />
+                    <Checkbox 
+                      id="therapy-no"
+                      checked={formData.previous_therapy === "Não"}
+                      onCheckedChange={(checked) => updateFormData("previous_therapy", checked ? "Não" : "")}
+                    />
                     <Label htmlFor="therapy-no">Não</Label>
                   </div>
-                </RadioGroup>
+                </div>
               </div>
               
               {formData.previous_therapy === "Sim" && (
