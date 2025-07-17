@@ -43,6 +43,7 @@ export default function Dashboard() {
   const [selectedChild, setSelectedChild] = useState<Child | null>(null);
   const [todayActivity, setTodayActivity] = useState<Activity | null>(null);
   const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
+  const [whatsAppSelectedChild, setWhatsAppSelectedChild] = useState<Child | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -109,6 +110,7 @@ export default function Dashboard() {
 
   const handleChildClick = async (child: Child) => {
     setSelectedChild(child);
+    setWhatsAppSelectedChild(child); // Atualiza a simulação do WhatsApp
     const activity = await getTodayActivity(child);
     setTodayActivity(activity);
     setIsActivityDialogOpen(true);
@@ -273,7 +275,7 @@ export default function Dashboard() {
         {/* WhatsApp Simulation */}
         <WhatsAppSimulation 
           parentName={profile?.parent_name || "Responsável"} 
-          childName={children.length > 0 ? children[0].child_name : "Criança"}
+          childName={whatsAppSelectedChild?.child_name || children[0]?.child_name || "Criança"}
         />
 
         {/* Quick Stats */}

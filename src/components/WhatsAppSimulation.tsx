@@ -58,10 +58,15 @@ Acesse seu dashboard: ${window.location.origin}/dashboard`;
         <div>
           <CardTitle className="text-lg flex items-center">
             <Smartphone className="w-5 h-5 mr-2 text-green-600" />
-            WhatsApp Simulator
+            Exemplo de Mensagem WhatsApp
           </CardTitle>
           <CardDescription>
-            Visualize as mensagens que seriam enviadas no WhatsApp
+            Assim ficaria a mensagem real enviada no WhatsApp
+            {childName !== "Criança" && (
+              <span className="block text-xs mt-1 text-muted-foreground">
+                Simulação para: {childName}
+              </span>
+            )}
           </CardDescription>
         </div>
         <Badge variant="secondary" className="bg-green-100 text-green-800">
