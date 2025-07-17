@@ -271,7 +271,10 @@ export default function Dashboard() {
         </div>
 
         {/* WhatsApp Simulation */}
-        <WhatsAppSimulation />
+        <WhatsAppSimulation 
+          parentName={profile?.parent_name || "Responsável"} 
+          childName={children.length > 0 ? children[0].child_name : "Criança"}
+        />
 
         {/* Quick Stats */}
         <div className="grid gap-6 md:grid-cols-3">

@@ -9,12 +9,16 @@ interface WhatsAppSimulationProps {
   message?: string;
   recipient?: string;
   timestamp?: string;
+  parentName?: string;
+  childName?: string;
 }
 
 export default function WhatsAppSimulation({ 
   message = "Nenhuma mensagem simulada ainda", 
   recipient = "Não definido",
-  timestamp = new Date().toISOString()
+  timestamp = new Date().toISOString(),
+  parentName = "Fellipe",
+  childName = "João"
 }: WhatsAppSimulationProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -35,14 +39,14 @@ export default function WhatsAppSimulation({
     }
   };
 
-  const sampleMessage = `🎉 Olá Fellipe!
+  const sampleMessage = `🎉 Olá ${parentName}!
 
 Bem-vindo(a) ao FonoBot! 
 
-A avaliação de João foi concluída com sucesso. Criamos um plano personalizado de atividades de fonoaudiologia.
+A avaliação de ${childName} foi concluída com sucesso. Criamos um plano personalizado de atividades de fonoaudiologia.
 
 🎯 Primeira atividade sugerida:
-"Sons de Animais" - Mostre figuras de animais para João e faça os sons correspondentes. Peça para João imitar os sons...
+"Sons de Animais" - Mostre figuras de animais para ${childName} e faça os sons correspondentes. Peça para ${childName} imitar os sons...
 
 Deseja começar agora? Responda SIM para receber mais detalhes!
 
