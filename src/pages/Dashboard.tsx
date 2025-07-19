@@ -122,18 +122,30 @@ export default function Dashboard() {
   };
 
   const getTodayActivity = async (child: Child) => {
-    const daysSinceCreated = Math.floor(
-      (Date.now() - new Date(child.created_at).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    
-    const { data: activity } = await supabase
-      .from('activities')
-      .select('*')
-      .eq('track_id', child.track_id)
-      .eq('day_index', daysSinceCreated + 1)
-      .single();
+    try {
+      // Get all activities for this track
+      const { data: activities } = await supabase
+        .from('activities')
+        .select('*')
+        .eq('track_id', child.track_id)
+        .order('day_index', { ascending: true });
 
-    return activity;
+      if (!activities || activities.length === 0) return null;
+
+      // Create a pseudo-random but consistent index based on child ID and current date
+      const today = new Date().toDateString(); // This ensures same activity per day
+      const childIdHash = child.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const dateHash = today.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const combinedHash = childIdHash + dateHash;
+      
+      // Use modulo to get a consistent index within the available activities
+      const activityIndex = combinedHash % activities.length;
+      
+      return activities[activityIndex];
+    } catch (error) {
+      console.error('Error fetching today activity:', error);
+      return null;
+    }
   };
 
   const handleChildClick = async (child: Child) => {
