@@ -15,9 +15,11 @@ interface Child {
   id: string;
   child_name: string;
   child_age: number;
-  child_profile: string;
   track_id: string;
   created_at: string;
+  user_id: string;
+  // Optional fields that may not be used in UI but exist in DB
+  [key: string]: any;
 }
 
 interface Activity {
@@ -44,6 +46,8 @@ export default function Dashboard() {
   const [todayActivity, setTodayActivity] = useState<Activity | null>(null);
   const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
   const [whatsAppSelectedChild, setWhatsAppSelectedChild] = useState<Child | null>(null);
+  const [childrenProgress, setChildrenProgress] = useState<Record<string, number>>({});
+  const [isActivityCompleted, setIsActivityCompleted] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -72,6 +76,15 @@ export default function Dashboard() {
         .order('created_at', { ascending: true });
 
       setChildren((childrenData || []) as any);
+
+      // Calculate progress for each child
+      if (childrenData) {
+        const progressData: Record<string, number> = {};
+        for (const child of childrenData) {
+          progressData[child.id] = await calculateProgress(child);
+        }
+        setChildrenProgress(progressData);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -84,13 +97,28 @@ export default function Dashboard() {
     }
   };
 
-  const calculateProgress = (child: Child) => {
-    // Mock progress calculation - last 7 days
-    // In real implementation, this would calculate based on completions
-    const daysSinceCreated = Math.floor(
-      (Date.now() - new Date(child.created_at).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return Math.min(Math.max(daysSinceCreated * 14, 0), 100);
+  const calculateProgress = async (child: Child) => {
+    try {
+      // Get total activities for this track
+      const { data: totalActivities, count: totalCount } = await supabase
+        .from('activities')
+        .select('*', { count: 'exact' })
+        .eq('track_id', child.track_id);
+
+      // Get completed activities for this child
+      const { data: completedActivities, count: completedCount } = await supabase
+        .from('completions')
+        .select('*', { count: 'exact' })
+        .eq('child_id', child.id);
+
+      if (!totalCount || totalCount === 0) return 0;
+      
+      const progress = Math.round((completedCount || 0) / totalCount * 100);
+      return Math.min(progress, 100);
+    } catch (error) {
+      console.error('Error calculating progress:', error);
+      return 0;
+    }
   };
 
   const getTodayActivity = async (child: Child) => {
@@ -113,11 +141,26 @@ export default function Dashboard() {
     setWhatsAppSelectedChild(child); // Atualiza a simulação do WhatsApp
     const activity = await getTodayActivity(child);
     setTodayActivity(activity);
+    
+    // Check if activity is already completed
+    if (activity) {
+      const { data: completion } = await supabase
+        .from('completions')
+        .select('id')
+        .eq('child_id', child.id)
+        .eq('activity_id', activity.id)
+        .single();
+      
+      setIsActivityCompleted(!!completion);
+    } else {
+      setIsActivityCompleted(false);
+    }
+    
     setIsActivityDialogOpen(true);
   };
 
   const markActivityCompleted = async () => {
-    if (!selectedChild || !todayActivity) return;
+    if (!selectedChild || !todayActivity || isActivityCompleted) return;
 
     try {
       const { error } = await supabase
@@ -138,6 +181,15 @@ export default function Dashboard() {
           title: 'Atividade concluída!',
           description: `Parabéns! ${selectedChild.child_name} completou a atividade de hoje.`,
         });
+        setIsActivityCompleted(true);
+        
+        // Update progress for this child
+        const newProgress = await calculateProgress(selectedChild);
+        setChildrenProgress(prev => ({
+          ...prev,
+          [selectedChild.id]: newProgress
+        }));
+        
         setIsActivityDialogOpen(false);
       }
     } catch (error) {
@@ -236,7 +288,7 @@ export default function Dashboard() {
                   <Badge variant="outline">{child.child_age} anos</Badge>
                 </CardTitle>
                 <CardDescription>
-                  {child.child_profile} • Progresso dos últimos 7 dias
+                  Progresso das atividades
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -244,9 +296,9 @@ export default function Dashboard() {
                   <div>
                     <div className="flex justify-between text-sm mb-2">
                       <span>Atividades concluídas</span>
-                      <span>{calculateProgress(child)}%</span>
+                      <span>{childrenProgress[child.id] || 0}%</span>
                     </div>
-                    <Progress value={calculateProgress(child)} className="h-2" />
+                    <Progress value={childrenProgress[child.id] || 0} className="h-2" />
                   </div>
                   <Button variant="outline" size="sm" className="w-full">
                     <Calendar className="w-4 h-4 mr-2" />
@@ -334,13 +386,24 @@ export default function Dashboard() {
               </div>
               
               <div className="flex gap-3">
-                <Button 
-                  onClick={markActivityCompleted}
-                  className="flex-1"
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Marcar como Concluída
-                </Button>
+                {isActivityCompleted ? (
+                  <Button 
+                    disabled
+                    className="flex-1"
+                    variant="default"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Atividade Concluída!
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={markActivityCompleted}
+                    className="flex-1"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Marcar como Concluída
+                  </Button>
+                )}
                 <Button 
                   variant="outline" 
                   onClick={() => setIsActivityDialogOpen(false)}
