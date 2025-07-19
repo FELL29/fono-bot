@@ -43,11 +43,11 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedChild, setSelectedChild] = useState<Child | null>(null);
-  const [todayActivity, setTodayActivity] = useState<Activity | null>(null);
+  const [todayActivities, setTodayActivities] = useState<Activity[]>([]);
   const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
   const [whatsAppSelectedChild, setWhatsAppSelectedChild] = useState<Child | null>(null);
   const [childrenProgress, setChildrenProgress] = useState<Record<string, number>>({});
-  const [isActivityCompleted, setIsActivityCompleted] = useState(false);
+  const [completedActivities, setCompletedActivities] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!user) {
@@ -121,7 +121,20 @@ export default function Dashboard() {
     }
   };
 
-  const getTodayActivity = async (child: Child) => {
+  // Generate all possible combinations of 3 activities from 5
+  const generateCombinations = (activities: Activity[]) => {
+    const combinations: Activity[][] = [];
+    for (let i = 0; i < activities.length - 2; i++) {
+      for (let j = i + 1; j < activities.length - 1; j++) {
+        for (let k = j + 1; k < activities.length; k++) {
+          combinations.push([activities[i], activities[j], activities[k]]);
+        }
+      }
+    }
+    return combinations;
+  };
+
+  const getTodayActivities = async (child: Child) => {
     try {
       // Get all activities for this track
       const { data: activities } = await supabase
@@ -130,56 +143,61 @@ export default function Dashboard() {
         .eq('track_id', child.track_id)
         .order('day_index', { ascending: true });
 
-      if (!activities || activities.length === 0) return null;
+      if (!activities || activities.length < 3) return [];
+
+      // Generate all possible combinations of 3 activities
+      const combinations = generateCombinations(activities);
+      
+      if (combinations.length === 0) return [];
 
       // Create a pseudo-random but consistent index based on child ID and current date
-      const today = new Date().toDateString(); // This ensures same activity per day
+      const today = new Date().toDateString();
       const childIdHash = child.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
       const dateHash = today.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
       const combinedHash = childIdHash + dateHash;
       
-      // Use modulo to get a consistent index within the available activities
-      const activityIndex = combinedHash % activities.length;
+      // Use modulo to get a consistent combination index (cycles through all 10 combinations)
+      const combinationIndex = combinedHash % combinations.length;
       
-      return activities[activityIndex];
+      return combinations[combinationIndex];
     } catch (error) {
-      console.error('Error fetching today activity:', error);
-      return null;
+      console.error('Error fetching today activities:', error);
+      return [];
     }
   };
 
   const handleChildClick = async (child: Child) => {
     setSelectedChild(child);
     setWhatsAppSelectedChild(child); // Atualiza a simulação do WhatsApp
-    const activity = await getTodayActivity(child);
-    setTodayActivity(activity);
+    const activities = await getTodayActivities(child);
+    setTodayActivities(activities);
     
-    // Check if activity is already completed
-    if (activity) {
-      const { data: completion } = await supabase
+    // Check which activities are already completed
+    if (activities.length > 0) {
+      const { data: completions } = await supabase
         .from('completions')
-        .select('id')
+        .select('activity_id')
         .eq('child_id', child.id)
-        .eq('activity_id', activity.id)
-        .single();
+        .in('activity_id', activities.map(a => a.id));
       
-      setIsActivityCompleted(!!completion);
+      const completedIds = new Set(completions?.map(c => c.activity_id) || []);
+      setCompletedActivities(completedIds);
     } else {
-      setIsActivityCompleted(false);
+      setCompletedActivities(new Set());
     }
     
     setIsActivityDialogOpen(true);
   };
 
-  const markActivityCompleted = async () => {
-    if (!selectedChild || !todayActivity || isActivityCompleted) return;
+  const markActivityCompleted = async (activityId: string) => {
+    if (!selectedChild || completedActivities.has(activityId)) return;
 
     try {
       const { error } = await supabase
         .from('completions')
         .insert({
           child_id: selectedChild.id,
-          activity_id: todayActivity.id,
+          activity_id: activityId,
         });
 
       if (error) {
@@ -189,11 +207,14 @@ export default function Dashboard() {
           variant: 'destructive',
         });
       } else {
+        const activity = todayActivities.find(a => a.id === activityId);
         toast({
           title: 'Atividade concluída!',
-          description: `Parabéns! ${selectedChild.child_name} completou a atividade de hoje.`,
+          description: `Parabéns! ${selectedChild.child_name} completou "${activity?.title}".`,
         });
-        setIsActivityCompleted(true);
+        
+        // Update completed activities state
+        setCompletedActivities(prev => new Set([...prev, activityId]));
         
         // Update progress for this child
         const newProgress = await calculateProgress(selectedChild);
@@ -201,8 +222,6 @@ export default function Dashboard() {
           ...prev,
           [selectedChild.id]: newProgress
         }));
-        
-        setIsActivityDialogOpen(false);
       }
     } catch (error) {
       console.error('Error completing activity:', error);
@@ -360,7 +379,7 @@ export default function Dashboard() {
               <Calendar className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{children.length}</div>
+              <div className="text-2xl font-bold">{children.length * 3}</div>
             </CardContent>
           </Card>
 
@@ -382,40 +401,53 @@ export default function Dashboard() {
       <Dialog open={isActivityDialogOpen} onOpenChange={setIsActivityDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Atividade de Hoje</DialogTitle>
+            <DialogTitle>Atividades de Hoje</DialogTitle>
             <DialogDescription>
-              Atividade para {selectedChild?.child_name}
+              3 atividades sugeridas para {selectedChild?.child_name}
             </DialogDescription>
           </DialogHeader>
           
-          {todayActivity ? (
-            <div className="space-y-4">
-              <div className="p-4 bg-muted rounded-lg">
-                <h4 className="font-semibold mb-2">{todayActivity.title}</h4>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {todayActivity.instructions.replace(/{{child_name}}/g, selectedChild?.child_name || '')}
-                </p>
-              </div>
+          {todayActivities.length > 0 ? (
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {todayActivities.map((activity, index) => (
+                <div key={activity.id} className="p-4 bg-muted rounded-lg">
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="font-semibold">Atividade {index + 1}: {activity.title}</h4>
+                    {completedActivities.has(activity.id) && (
+                      <Badge variant="default" className="ml-2">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Concluída
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap mb-3">
+                    {activity.instructions.replace(/{{child_name}}/g, selectedChild?.child_name || '')}
+                  </p>
+                  
+                  {completedActivities.has(activity.id) ? (
+                    <Button 
+                      disabled
+                      size="sm"
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Atividade Concluída!
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={() => markActivityCompleted(activity.id)}
+                      size="sm"
+                      className="w-full"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Marcar como Concluída
+                    </Button>
+                  )}
+                </div>
+              ))}
               
-              <div className="flex gap-3">
-                {isActivityCompleted ? (
-                  <Button 
-                    disabled
-                    className="flex-1"
-                    variant="default"
-                  >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Atividade Concluída!
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={markActivityCompleted}
-                    className="flex-1"
-                  >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Marcar como Concluída
-                  </Button>
-                )}
+              <div className="flex justify-end pt-4 border-t">
                 <Button 
                   variant="outline" 
                   onClick={() => setIsActivityDialogOpen(false)}
