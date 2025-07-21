@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { PlusCircle, Users, Calendar, CheckCircle, MessageCircle, LogOut, Home } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { PlusCircle, Users, Calendar, CheckCircle, MessageCircle, LogOut, Home, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import WhatsAppSimulation from '@/components/WhatsAppSimulation';
@@ -233,6 +234,41 @@ export default function Dashboard() {
     navigate('/');
   };
 
+  const handleEditChild = (childId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // TODO: Implementar edição do perfil da criança
+    console.log('Editar criança:', childId);
+  };
+
+  const handleDeleteChild = async (childId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm('Tem certeza que deseja excluir este perfil?')) {
+      try {
+        const { error } = await supabase
+          .from('children')
+          .delete()
+          .eq('id', childId);
+        
+        if (error) throw error;
+        
+        // Atualizar a lista de crianças
+        setChildren(children.filter(child => child.id !== childId));
+        
+        toast({
+          title: 'Perfil excluído',
+          description: 'O perfil da criança foi excluído com sucesso.',
+        });
+      } catch (error) {
+        console.error('Erro ao excluir criança:', error);
+        toast({
+          title: 'Erro',
+          description: 'Erro ao excluir perfil da criança.',
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+
   const getPlanBadgeVariant = (plan: string) => {
     switch (plan) {
       case 'TRIAL': return 'secondary';
@@ -316,7 +352,29 @@ export default function Dashboard() {
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center justify-between">
                   <span>{child.child_name}</span>
-                  <Badge variant="outline">{child.child_age} anos</Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">{child.child_age} anos</Badge>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={(e) => handleEditChild(child.id, e)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Editar perfil
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={(e) => handleDeleteChild(child.id, e)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Excluir perfil
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </CardTitle>
                 <CardDescription>
                   Progresso das atividades
