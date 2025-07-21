@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { PlusCircle, Users, Calendar, CheckCircle, MessageCircle, LogOut, Home, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, Users, Calendar, CheckCircle, MessageCircle, LogOut, Home, MoreVertical, Edit, Trash2, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import WhatsAppSimulation from '@/components/WhatsAppSimulation';
@@ -269,6 +269,77 @@ export default function Dashboard() {
     }
   };
 
+  const exportProjectData = async () => {
+    try {
+      // Coletar todos os dados do projeto
+      const projectData = {
+        metadata: {
+          projectName: 'FonoBot',
+          exportDate: new Date().toISOString(),
+          version: '1.0.0'
+        },
+        profile: profile,
+        children: children,
+        childrenProgress: childrenProgress,
+        user: {
+          id: user?.id,
+          email: user?.email
+        },
+        // Buscar dados das tabelas
+        tracks: null,
+        activities: null,
+        completions: null
+      };
+
+      // Buscar tracks
+      const { data: tracksData } = await supabase
+        .from('tracks')
+        .select('*');
+      projectData.tracks = tracksData;
+
+      // Buscar atividades
+      const { data: activitiesData } = await supabase
+        .from('activities')
+        .select('*');
+      projectData.activities = activitiesData;
+
+      // Buscar completions do usuário
+      const childIds = children.map(child => child.id);
+      if (childIds.length > 0) {
+        const { data: completionsData } = await supabase
+          .from('completions')
+          .select('*')
+          .in('child_id', childIds);
+        projectData.completions = completionsData;
+      }
+
+      // Criar e baixar arquivo JSON
+      const jsonString = JSON.stringify(projectData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `fonobot-projeto-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: 'Exportação concluída',
+        description: 'Dados do projeto exportados com sucesso!',
+      });
+    } catch (error) {
+      console.error('Erro ao exportar dados:', error);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao exportar dados do projeto.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const getPlanBadgeVariant = (plan: string) => {
     switch (plan) {
       case 'TRIAL': return 'secondary';
@@ -319,6 +390,15 @@ export default function Dashboard() {
               >
                 <Home className="w-4 h-4 mr-2" />
                 Início
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={exportProjectData}
+                className="text-muted-foreground hover:text-primary"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Exportar JSON
               </Button>
               <Badge variant={getPlanBadgeVariant(profile?.plan || 'TRIAL')}>
                 {profile?.plan === 'TRIAL' ? 'Teste Grátis' : profile?.plan}
