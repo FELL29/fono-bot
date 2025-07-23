@@ -149,6 +149,9 @@ export default {
 				"scale-out": "scale-out 0.2s ease-out",
 				"slide-in-right": "slide-in-right 0.3s ease-out",
 				"slide-out-right": "slide-out-right 0.3s ease-out"
+			},
+			backgroundSize: {
+				'gradient-radial': 'radial-gradient(circle, transparent 20%, slategray 20%, slategray 80%, transparent 80%, transparent)',
 			}
 		}
 	},
