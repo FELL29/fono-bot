@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,19 +6,37 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ErrorBoundary from "@/components/ui/error-boundary";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Privacy from "./pages/Privacy";
-import FAQ from "./pages/FAQ";
-import Assessment from "./pages/Assessment";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import NotFound from "./pages/NotFound";
-import ResetPassword from "./pages/ResetPassword";
-import Tracks from "./pages/Tracks";
+import { LoadingState } from "@/components/ui/loading-spinner";
 
-const queryClient = new QueryClient();
+// Lazy load all pages for better performance
+const Index = lazy(() => import("./pages/Index"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const Assessment = lazy(() => import("./pages/Assessment"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Tracks = lazy(() => import("./pages/Tracks"));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+const PageSuspense = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<LoadingState>Carregando página...</LoadingState>}>
+    {children}
+  </Suspense>
+);
 
 const App = () => (
   <ErrorBoundary>
@@ -28,18 +47,18 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/sobre" element={<About />} />
-              <Route path="/contato" element={<Contact />} />
-              <Route path="/privacidade" element={<Privacy />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/avaliacao" element={<Assessment />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/trilhas" element={<Tracks />} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/" element={<PageSuspense><Index /></PageSuspense>} />
+              <Route path="/sobre" element={<PageSuspense><About /></PageSuspense>} />
+              <Route path="/contato" element={<PageSuspense><Contact /></PageSuspense>} />
+              <Route path="/privacidade" element={<PageSuspense><Privacy /></PageSuspense>} />
+              <Route path="/faq" element={<PageSuspense><FAQ /></PageSuspense>} />
+              <Route path="/avaliacao" element={<PageSuspense><Assessment /></PageSuspense>} />
+              <Route path="/auth" element={<PageSuspense><Auth /></PageSuspense>} />
+              <Route path="/reset-password" element={<PageSuspense><ResetPassword /></PageSuspense>} />
+              <Route path="/trilhas" element={<PageSuspense><Tracks /></PageSuspense>} />
+              <Route path="/dashboard" element={<PageSuspense><Dashboard /></PageSuspense>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<PageSuspense><NotFound /></PageSuspense>} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>

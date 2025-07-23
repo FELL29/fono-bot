@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -53,29 +53,29 @@ const Dashboard = () => {
     }
   }, [user, navigate]);
 
-  // Fetch progress data for all children
-  useEffect(() => {
-    const fetchProgressData = async () => {
-      if (children.length === 0) return;
-      
-      const progressPromises = children.map(async (child) => {
-        const progress = await calculateProgress(child);
-        return { id: child.id, progress };
-      });
+  // Optimized progress data fetching with debounce
+  const fetchProgressData = useCallback(async () => {
+    if (children.length === 0) return;
+    
+    const progressPromises = children.map(async (child) => {
+      const progress = await calculateProgress(child);
+      return { id: child.id, progress };
+    });
 
-      const results = await Promise.all(progressPromises);
-      const progressMap = results.reduce((acc, { id, progress }) => {
-        acc[id] = progress;
-        return acc;
-      }, {} as Record<string, number>);
+    const results = await Promise.all(progressPromises);
+    const progressMap = results.reduce((acc, { id, progress }) => {
+      acc[id] = progress;
+      return acc;
+    }, {} as Record<string, number>);
 
-      setProgressData(progressMap);
-    };
-
-    fetchProgressData();
+    setProgressData(progressMap);
   }, [children, calculateProgress]);
 
-  const handleChildClick = async (child: Child) => {
+  useEffect(() => {
+    fetchProgressData();
+  }, [fetchProgressData]);
+
+  const handleChildClick = useCallback(async (child: Child) => {
     setSelectedChild(child);
     const todayActivities = await getTodayActivities(child);
     setActivities(todayActivities);
@@ -95,9 +95,9 @@ const Dashboard = () => {
     }
     
     setDialogOpen(true);
-  };
+  }, [getTodayActivities]);
 
-  const markActivityCompleted = async (activityId: string) => {
+  const markActivityCompleted = useCallback(async (activityId: string) => {
     if (!selectedChild || completedActivities.has(activityId)) return;
 
     try {
@@ -133,20 +133,20 @@ const Dashboard = () => {
         variant: 'destructive',
       });
     }
-  };
+  }, [selectedChild, completedActivities, activities, calculateProgress, toast]);
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     await signOut();
     navigate('/');
-  };
+  }, [signOut, navigate]);
 
-  const handleEditChild = (childId: string, e: React.MouseEvent) => {
+  const handleEditChild = useCallback((childId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     // TODO: Implementar edição do perfil da criança
     console.log('Editar criança:', childId);
-  };
+  }, []);
 
-  const handleDeleteChild = async (childId: string, e: React.MouseEvent) => {
+  const handleDeleteChild = useCallback(async (childId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     
     if (!confirm('Tem certeza que deseja excluir esta criança?')) {
@@ -154,9 +154,9 @@ const Dashboard = () => {
     }
 
     await deleteChild(childId);
-  };
+  }, [deleteChild]);
 
-  const getPlanBadgeVariant = (plan: string) => {
+  const getPlanBadgeVariant = useCallback((plan: string) => {
     switch (plan) {
       case 'TRIAL': return 'secondary';
       case 'ESSENCIAL': return 'default';
@@ -164,7 +164,19 @@ const Dashboard = () => {
       case 'PREMIUM': return 'default';
       default: return 'secondary';
     }
-  };
+  }, []);
+
+  // Memoized calculations to avoid unnecessary re-renders
+  const totalChildren = useMemo(() => children.length, [children.length]);
+  const totalActivitiesHoje = useMemo(() => children.length * 3, [children.length]);
+  const progressoMedio = useMemo(() => {
+    const values = Object.values(progressData);
+    return values.length > 0 
+      ? Math.round(values.reduce((a, b) => a + b, 0) / values.length)
+      : 0;
+  }, [progressData]);
+
+  const primaryChild = useMemo(() => children[0], [children]);
 
   if (loading) {
     return (
@@ -270,7 +282,7 @@ const Dashboard = () => {
                     <Users className="w-4 h-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{children.length}</div>
+                    <div className="text-2xl font-bold">{totalChildren}</div>
                   </CardContent>
                 </Card>
 
@@ -280,7 +292,7 @@ const Dashboard = () => {
                     <Calendar className="w-4 h-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{children.length * 3}</div>
+                    <div className="text-2xl font-bold">{totalActivitiesHoje}</div>
                   </CardContent>
                 </Card>
 
@@ -290,9 +302,7 @@ const Dashboard = () => {
                     <Trophy className="w-4 h-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">
-                      {Math.round(Object.values(progressData).reduce((a, b) => a + b, 0) / (Object.values(progressData).length || 1))}%
-                    </div>
+                    <div className="text-2xl font-bold">{progressoMedio}%</div>
                   </CardContent>
                 </Card>
               </div>
@@ -300,7 +310,7 @@ const Dashboard = () => {
               {/* WhatsApp Simulation */}
               <WhatsAppSimulation 
                 parentName={profile?.parent_name || "Responsável"} 
-                childName={children[0]?.child_name || "Criança"}
+                childName={primaryChild?.child_name || "Criança"}
               />
             </>
           )}

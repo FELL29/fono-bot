@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -26,7 +26,7 @@ export const useChildren = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const fetchChildren = async () => {
+  const fetchChildren = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -53,9 +53,9 @@ export const useChildren = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
-  const deleteChild = async (childId: string) => {
+  const deleteChild = useCallback(async (childId: string) => {
     try {
       const { error } = await supabase
         .from('children')
@@ -78,9 +78,9 @@ export const useChildren = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
-  const calculateProgress = async (child: Child): Promise<number> => {
+  const calculateProgress = useCallback(async (child: Child): Promise<number> => {
     try {
       const { count: totalActivities } = await supabase
         .from('activities')
@@ -98,9 +98,9 @@ export const useChildren = () => {
       console.error('Erro ao calcular progresso:', error);
       return 0;
     }
-  };
+  }, []);
 
-  const getTodayActivities = async (child: Child): Promise<Activity[]> => {
+  const getTodayActivities = useCallback(async (child: Child): Promise<Activity[]> => {
     try {
       const daysSinceStart = Math.floor(
         (Date.now() - new Date(child.created_at).getTime()) / (1000 * 60 * 60 * 24)
@@ -119,11 +119,11 @@ export const useChildren = () => {
       console.error('Erro ao buscar atividades do dia:', error);
       return [];
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchChildren();
-  }, [user]);
+  }, [fetchChildren]);
 
   return {
     children,

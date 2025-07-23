@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, memo, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,19 +23,28 @@ interface ChildCardProps {
   onClick: () => void;
 }
 
-export const ChildCard = ({ child, progress = 0, onEdit, onDelete, onClick }: ChildCardProps) => {
+export const ChildCard = memo(({ child, progress = 0, onEdit, onDelete, onClick }: ChildCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const daysSinceStart = Math.floor(
-    (Date.now() - new Date(child.created_at).getTime()) / (1000 * 60 * 60 * 24)
+  const daysSinceStart = useMemo(() => 
+    Math.floor((Date.now() - new Date(child.created_at).getTime()) / (1000 * 60 * 60 * 24)),
+    [child.created_at]
   );
 
-  const getProgressColor = (progress: number) => {
+  const progressColor = useMemo(() => {
     if (progress >= 80) return 'text-green-600';
     if (progress >= 60) return 'text-yellow-600';
     if (progress >= 40) return 'text-orange-600';
     return 'text-red-600';
-  };
+  }, [progress]);
+
+  const statusText = useMemo(() => {
+    if (progress >= 80) return "Excelente";
+    if (progress >= 60) return "Muito Bom";
+    if (progress >= 40) return "Bom";
+    if (progress >= 20) return "Regular";
+    return "Iniciando";
+  }, [progress]);
 
   const handleCardClick = () => {
     setIsLoading(true);
@@ -99,8 +108,8 @@ export const ChildCard = ({ child, progress = 0, onEdit, onDelete, onClick }: Ch
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Progresso</span>
             <div className="flex items-center gap-1">
-              <Trophy className={`h-3 w-3 ${getProgressColor(progress)}`} />
-              <span className={`font-medium ${getProgressColor(progress)}`}>
+              <Trophy className={`h-3 w-3 ${progressColor}`} />
+              <span className={`font-medium ${progressColor}`}>
                 {progress}%
               </span>
             </div>
@@ -119,10 +128,7 @@ export const ChildCard = ({ child, progress = 0, onEdit, onDelete, onClick }: Ch
         {/* Status Badge */}
         <div className="flex justify-between items-center">
           <Badge variant={progress > 50 ? "default" : "secondary"} className="text-xs">
-            {progress >= 80 ? "Excelente" : 
-             progress >= 60 ? "Muito Bom" : 
-             progress >= 40 ? "Bom" : 
-             progress >= 20 ? "Regular" : "Iniciando"}
+            {statusText}
           </Badge>
           <span className="text-xs text-muted-foreground">
             Clique para ver atividades
@@ -131,4 +137,4 @@ export const ChildCard = ({ child, progress = 0, onEdit, onDelete, onClick }: Ch
       </CardContent>
     </Card>
   );
-};
+});
