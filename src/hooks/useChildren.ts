@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { checkDataFetchRate, isValidUUID } from '@/lib/security';
 
 interface Child {
   id: string;
@@ -28,6 +29,26 @@ export const useChildren = () => {
 
   const fetchChildren = useCallback(async () => {
     if (!user) return;
+
+    // Check rate limiting
+    if (!checkDataFetchRate('children')) {
+      toast({
+        title: "Muitas solicitações",
+        description: "Aguarde antes de tentar novamente.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate user ID
+    if (!isValidUUID(user.id)) {
+      toast({
+        title: "Erro de autenticação",
+        description: "ID de usuário inválido.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       setLoading(true);
@@ -56,11 +77,24 @@ export const useChildren = () => {
   }, [user, toast]);
 
   const deleteChild = useCallback(async (childId: string) => {
+    if (!user) return;
+
+    // Validate IDs
+    if (!isValidUUID(childId) || !isValidUUID(user.id)) {
+      toast({
+        title: "Erro",
+        description: "IDs inválidos fornecidos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('children')
         .delete()
-        .eq('id', childId);
+        .eq('id', childId)
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
@@ -78,7 +112,7 @@ export const useChildren = () => {
         variant: "destructive",
       });
     }
-  }, [toast]);
+  }, [user, toast]);
 
   const calculateProgress = useCallback(async (child: Child): Promise<number> => {
     try {

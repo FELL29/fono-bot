@@ -13,6 +13,22 @@ interface WhatsAppRequest {
   track_id: string;
 }
 
+// Rate limiting
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const isRateLimited = (clientId: string, maxRequests = 3, windowMs = 300000): boolean => {
+  const now = Date.now();
+  const record = rateLimitMap.get(clientId);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(clientId, { count: 1, resetTime: now + windowMs });
+    return false;
+  }
+  
+  if (record.count >= maxRequests) return true;
+  record.count++;
+  return false;
+};
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[WHATSAPP-WELCOME] ${step}${detailsStr}`);
@@ -41,10 +57,29 @@ serve(async (req) => {
     const user = userData.user;
     if (!user?.id) throw new Error("User not authenticated");
 
-    const requestData: WhatsAppRequest = await req.json();
-    const { child_name, parent_name, whatsapp, track_id } = requestData;
+    // Rate limiting check
+    if (isRateLimited(user.id)) {
+      return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { 
+        status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
 
-    logStep("Request data received", { child_name, parent_name, whatsapp, track_id });
+    const body = await req.json();
+    
+    // Input validation and sanitization
+    const requestData: WhatsAppRequest = {
+      child_name: String(body.child_name || '').slice(0, 100).trim(),
+      parent_name: String(body.parent_name || '').slice(0, 100).trim(),
+      whatsapp: String(body.whatsapp || '').replace(/[^0-9+]/g, '').slice(0, 20),
+      track_id: String(body.track_id || '').trim()
+    };
+
+    // Validate required fields
+    if (!requestData.child_name || !requestData.parent_name || !requestData.track_id) {
+      throw new Error('Missing required fields');
+    }
+
+    logStep("Request data validated", requestData);
 
     // Buscar primeira atividade do track
     const { data: firstActivity, error: activityError } = await supabaseClient

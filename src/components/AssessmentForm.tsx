@@ -12,6 +12,10 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, ArrowLeft, CheckCircle, Baby, Brain, MessageCircle, User, Heart, Volume2, Home } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { assessmentFormSchema } from '@/lib/validations';
+import { useSecureValidation } from '@/hooks/useSecureValidation';
+import { sanitizeName, sanitizeText, sanitizeAge } from '@/lib/sanitize';
+import { checkFormSubmissionRate } from '@/lib/security';
 
 const AssessmentForm = () => {
   const { toast } = useToast();
@@ -19,6 +23,8 @@ const AssessmentForm = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const { validate, validateField } = useSecureValidation(assessmentFormSchema);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     // Bloco A - Identificação
     parent_name: "",
@@ -59,7 +65,44 @@ const AssessmentForm = () => {
   const totalSteps = 8;
 
   const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    // Sanitize input based on field type
+    let sanitizedValue = value;
+    
+    if (field === 'parent_name' || field === 'child_name') {
+      sanitizedValue = sanitizeName(value);
+    } else if (field === 'child_age') {
+      try {
+        sanitizedValue = value;
+        // Validate age immediately for better UX
+        if (value && parseInt(value) > 0) {
+          sanitizeAge(value);
+        }
+      } catch (error) {
+        setFieldErrors(prev => ({ ...prev, [field]: 'Idade inválida' }));
+        return;
+      }
+    } else if (field === 'child_profile_other' || field === 'therapy_description') {
+      sanitizedValue = sanitizeText(value, 500);
+    }
+    
+    // Clear field error when user starts typing
+    if (fieldErrors[field]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+    
+    // Validate field if it has content
+    if (sanitizedValue && typeof sanitizedValue === 'string' && sanitizedValue.trim()) {
+      const fieldValidation = validateField(field, sanitizedValue);
+      if (!fieldValidation.isValid && fieldValidation.error) {
+        setFieldErrors(prev => ({ ...prev, [field]: fieldValidation.error! }));
+      }
+    }
+    
+    setFormData(prev => ({ ...prev, [field]: sanitizedValue }));
   };
 
   const updateCheckboxArray = (field: string, value: string, checked: boolean) => {
@@ -86,11 +129,38 @@ const AssessmentForm = () => {
   };
 
   const handleSubmit = async () => {
+    // Check rate limiting
+    if (!checkFormSubmissionRate('assessment')) {
+      toast({
+        title: "Muitas tentativas",
+        description: "Aguarde alguns minutos antes de enviar novamente.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate complete form
+    const validationResult = validate(formData, 'assessment');
+    
+    if (!validationResult.isValid) {
+      setFieldErrors(validationResult.errors);
+      const firstError = Object.values(validationResult.errors)[0];
+      toast({
+        title: "Dados inválidos",
+        description: firstError,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
+      // Use sanitized data from validation
+      const sanitizedData = validationResult.sanitizedData!;
+      
       // Convert age to months for internal processing
-      const ageInYears = parseInt(formData.child_age);
+      const ageInYears = parseInt(sanitizedData.child_age);
       
       // Get track for child profile and age using corrected profile mapping
       let profileForTrack = '';
@@ -312,6 +382,9 @@ const AssessmentForm = () => {
                   placeholder="Digite seu nome completo"
                   required
                 />
+                {fieldErrors.parent_name && (
+                  <p className="text-sm text-destructive">{fieldErrors.parent_name}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -323,6 +396,9 @@ const AssessmentForm = () => {
                   placeholder="Digite o nome da criança"
                   required
                 />
+                {fieldErrors.child_name && (
+                  <p className="text-sm text-destructive">{fieldErrors.child_name}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -342,6 +418,9 @@ const AssessmentForm = () => {
                 <p className="text-sm text-muted-foreground">
                   Selecione a idade da criança em anos completos
                 </p>
+                {fieldErrors.child_age && (
+                  <p className="text-sm text-destructive">{fieldErrors.child_age}</p>
+                )}
               </div>
             </div>
           </div>
