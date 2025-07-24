@@ -208,7 +208,6 @@ const AssessmentForm = () => {
 
       let trackId = null;
       if (trackError || !trackData) {
-        console.error('Track not found for profile:', trackProfile, 'Error:', trackError);
         // Try to find any track as fallback
         const { data: fallbackTrack } = await supabase
           .from('tracks')
@@ -268,8 +267,6 @@ const AssessmentForm = () => {
         } as any);
 
       if (childError) {
-        console.error('Error inserting child:', childError);
-        console.error('Full error details:', JSON.stringify(childError, null, 2));
         throw new Error(`Erro ao salvar dados da criança: ${childError.message || 'Erro desconhecido'}`);
       }
 
@@ -350,7 +347,6 @@ const AssessmentForm = () => {
       }, 3000);
       
     } catch (error: any) {
-      console.error('Assessment submission error:', error);
       toast({
         title: "Erro ao finalizar avaliação",
         description: error.message || "Tente novamente ou entre em contato conosco.",

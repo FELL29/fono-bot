@@ -129,7 +129,6 @@ export const useChildren = () => {
       if (!totalActivities) return 0;
       return Math.round((completedActivities || 0) / totalActivities * 100);
     } catch (error) {
-      console.error('Erro ao calcular progresso:', error);
       return 0;
     }
   }, []);
@@ -150,7 +149,6 @@ export const useChildren = () => {
       if (error) throw error;
       return activities || [];
     } catch (error) {
-      console.error('Erro ao buscar atividades do dia:', error);
       return [];
     }
   }, []);

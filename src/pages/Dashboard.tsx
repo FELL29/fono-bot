@@ -131,7 +131,6 @@ const Dashboard = () => {
 
       showOperationToast.success(`${selectedChild.child_name} completou "${activity?.title}"`);
     } catch (error) {
-      console.error('Error completing activity:', error);
       showOperationToast.error("marcar atividade como concluída");
     } finally {
       setIsMarkingComplete(null);
