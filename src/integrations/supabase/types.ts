@@ -52,6 +52,45 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          created_at: string
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          risk_level: string
+          session_id: string | null
+          success: boolean
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          risk_level?: string
+          session_id?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          risk_level?: string
+          session_id?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       children: {
         Row: {
           articulation_issue: string[] | null
@@ -228,12 +267,72 @@ export type Database = {
         }
         Relationships: []
       }
+      user_backups: {
+        Row: {
+          backup_data: Json
+          backup_type: string
+          checksum: string
+          created_at: string
+          encryption_method: string
+          expires_at: string | null
+          file_size: number | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          backup_data: Json
+          backup_type?: string
+          checksum: string
+          created_at?: string
+          encryption_method?: string
+          expires_at?: string | null
+          file_size?: number | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          backup_data?: Json
+          backup_type?: string
+          checksum?: string
+          created_at?: string
+          encryption_method?: string
+          expires_at?: string | null
+          file_size?: number | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_backups: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      detect_suspicious_activity: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
+      insert_audit_log: {
+        Args: {
+          p_user_id: string
+          p_event_type: string
+          p_details?: Json
+          p_ip_address?: unknown
+          p_user_agent?: string
+          p_session_id?: string
+          p_success?: boolean
+          p_risk_level?: string
+        }
+        Returns: string
+      }
+      should_cleanup_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       child_profile:

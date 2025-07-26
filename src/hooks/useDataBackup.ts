@@ -202,7 +202,7 @@ export const useDataBackup = () => {
       
       URL.revokeObjectURL(url);
 
-      auditLogger.dataAccess(user.id, 'report_exported', { format: 'csv' });
+      auditLogger.dataAccess(user.id, 'report_exported');
 
       toast({
         title: "Relatório exportado",

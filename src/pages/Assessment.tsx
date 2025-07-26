@@ -1,19 +1,37 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AssessmentForm from "@/components/AssessmentForm";
+import { ConsentModal } from "@/components/ConsentModal";
 import { useAuth } from '@/contexts/AuthContext';
 
 const Assessment = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const [consentsAccepted, setConsentsAccepted] = useState(false);
 
   useEffect(() => {
     if (!user) {
       navigate('/auth');
+      return;
+    }
+
+    // Verificar se o usuário já aceitou os consentimentos
+    const savedConsents = localStorage.getItem('fonobot_consents');
+    if (savedConsents) {
+      const consents = JSON.parse(savedConsents);
+      setConsentsAccepted(true);
+    } else {
+      setShowConsentModal(true);
     }
   }, [user, navigate]);
+
+  const handleConsentAccept = () => {
+    setConsentsAccepted(true);
+    setShowConsentModal(false);
+  };
 
   if (!user) {
     return null;
@@ -35,11 +53,35 @@ const Assessment = () => {
             </p>
           </div>
           
-          <AssessmentForm />
+          {consentsAccepted ? (
+            <AssessmentForm />
+          ) : (
+            <div className="max-w-2xl mx-auto text-center py-12">
+              <div className="bg-card rounded-lg shadow-soft p-8">
+                <h2 className="text-2xl font-bold mb-4">Consentimento Necessário</h2>
+                <p className="text-muted-foreground mb-6">
+                  Para continuar com a avaliação personalizada, precisamos do seu consentimento 
+                  para processar os dados conforme a LGPD (Lei Geral de Proteção de Dados).
+                </p>
+                <button 
+                  onClick={() => setShowConsentModal(true)}
+                  className="bg-primary text-primary-foreground px-8 py-3 rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  Revisar Consentimentos
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
       <Footer />
+      
+      <ConsentModal 
+        isOpen={showConsentModal}
+        onClose={() => setShowConsentModal(false)}
+        onAccept={handleConsentAccept}
+      />
     </div>
   );
 };

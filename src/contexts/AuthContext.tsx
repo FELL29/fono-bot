@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { auditLogger } from '@/lib/audit';
 
 interface AuthContextType {
   user: User | null;
@@ -55,7 +56,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signUp = async (email: string, password: string, metadata: any) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -63,18 +64,34 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         data: metadata
       }
     });
+    
+    // Log do evento de signup
+    if (data.user) {
+      auditLogger.signup(data.user.id, !error, { email, metadata });
+    }
+    
     return { error };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    
+    // Log do evento de login
+    if (data.user) {
+      auditLogger.login(data.user.id, !error, { email });
+    }
+    
     return { error };
   };
 
   const signOut = async () => {
+    // Log do evento de logout antes de sair
+    if (user) {
+      auditLogger.logout(user.id);
+    }
     await supabase.auth.signOut();
   };
 

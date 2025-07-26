@@ -3,7 +3,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { sanitizeForLogging } from './security';
+import { sanitizeForLogging, generateSessionId } from './security';
 
 export type AuditEventType = 
   | 'login'
@@ -51,17 +51,31 @@ export async function logAuditEvent(event: Omit<AuditEvent, 'timestamp' | 'ip_ad
       // IP será obtido no servidor
     };
 
-    // Em produção, enviaria para API de auditoria
-    // Por ora, salva no localStorage para demonstração
-    const existingLogs = JSON.parse(localStorage.getItem('fonobot_audit_logs') || '[]');
-    existingLogs.push(auditData);
-    
-    // Mantém apenas os últimos 100 logs no localStorage
-    if (existingLogs.length > 100) {
-      existingLogs.splice(0, existingLogs.length - 100);
+    // Enviar para API de auditoria server-side
+    try {
+      await supabase.functions.invoke('audit-logger', {
+        body: {
+          event_type: event.event_type,
+          details: sanitizedDetails,
+          success: event.success,
+          risk_level: event.risk_level,
+          session_id: generateSessionId()
+        }
+      });
+    } catch (apiError) {
+      console.warn('Failed to send audit to server, saving locally:', apiError);
+      
+      // Fallback: salva no localStorage
+      const existingLogs = JSON.parse(localStorage.getItem('fonobot_audit_logs') || '[]');
+      existingLogs.push(auditData);
+      
+      // Mantém apenas os últimos 100 logs no localStorage
+      if (existingLogs.length > 100) {
+        existingLogs.splice(0, existingLogs.length - 100);
+      }
+      
+      localStorage.setItem('fonobot_audit_logs', JSON.stringify(existingLogs));
     }
-    
-    localStorage.setItem('fonobot_audit_logs', JSON.stringify(existingLogs));
     
     // Log crítico também no console para desenvolvimento
     if (event.risk_level === 'critical' || event.risk_level === 'high') {

@@ -7,12 +7,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { LoadingState } from "@/components/ui/loading-spinner";
+import { BackupService } from "@/components/BackupService";
 
 // Lazy load all pages for better performance
 const Index = lazy(() => import("./pages/Index"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Assessment = lazy(() => import("./pages/Assessment"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -43,6 +45,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
+          <BackupService />
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -51,6 +54,7 @@ const App = () => (
               <Route path="/sobre" element={<PageSuspense><About /></PageSuspense>} />
               <Route path="/contato" element={<PageSuspense><Contact /></PageSuspense>} />
               <Route path="/privacidade" element={<PageSuspense><Privacy /></PageSuspense>} />
+              <Route path="/termos" element={<PageSuspense><TermsOfService /></PageSuspense>} />
               <Route path="/faq" element={<PageSuspense><FAQ /></PageSuspense>} />
               <Route path="/avaliacao" element={<PageSuspense><Assessment /></PageSuspense>} />
               <Route path="/auth" element={<PageSuspense><Auth /></PageSuspense>} />
