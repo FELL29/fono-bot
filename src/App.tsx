@@ -22,6 +22,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Tracks = lazy(() => import("./pages/Tracks"));
+const SecurityDashboard = lazy(() => import("@/components/SecurityDashboard").then(module => ({ default: module.SecurityDashboard })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="/reset-password" element={<PageSuspense><ResetPassword /></PageSuspense>} />
               <Route path="/trilhas" element={<PageSuspense><Tracks /></PageSuspense>} />
               <Route path="/dashboard" element={<PageSuspense><Dashboard /></PageSuspense>} />
+              <Route path="/seguranca" element={<PageSuspense><SecurityDashboard /></PageSuspense>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<PageSuspense><NotFound /></PageSuspense>} />
             </Routes>

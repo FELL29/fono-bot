@@ -15,7 +15,7 @@ import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { showOperationToast } from '@/components/ui/feedback-toast';
 import ErrorBoundary from '@/components/ui/error-boundary';
 import { ChildCard } from '@/components/ChildCard';
-import { PlusCircle, Users, Calendar, MessageCircle, LogOut, Home, CheckCircle, Trophy } from 'lucide-react';
+import { PlusCircle, Users, Calendar, MessageCircle, LogOut, Home, CheckCircle, Trophy, Shield } from 'lucide-react';
 import WhatsAppSimulation from '@/components/WhatsAppSimulation';
 import { useToast } from '@/hooks/use-toast';
 
@@ -208,6 +208,10 @@ const Dashboard = () => {
                 <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="px-2 sm:px-4 hover-scale">
                   <Home className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Início</span>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/seguranca')} className="px-2 sm:px-4 hover-scale">
+                  <Shield className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Segurança</span>
                 </Button>
                 <Badge variant={getPlanBadgeVariant(profile?.plan || 'TRIAL')} className="hidden sm:inline-flex animate-fade-in">
                   {profile?.plan === 'TRIAL' ? 'Trial' : profile?.plan}
