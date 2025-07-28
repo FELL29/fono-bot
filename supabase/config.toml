@@ -58,3 +58,6 @@ inspector_port = 54331
 
 [functions.send-whatsapp-welcome]
 verify_jwt = true
+
+[functions.rate-limiter]
+verify_jwt = false

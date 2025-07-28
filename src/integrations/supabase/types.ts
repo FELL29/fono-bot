@@ -243,6 +243,39 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_attempts: {
+        Row: {
+          blocked: boolean | null
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          key: string
+          metadata: Json | null
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          blocked?: boolean | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          key: string
+          metadata?: Json | null
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          blocked?: boolean | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          key?: string
+          metadata?: Json | null
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       tracks: {
         Row: {
           age_range: string
@@ -309,6 +342,10 @@ export type Database = {
     }
     Functions: {
       cleanup_expired_backups: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_rate_limit_attempts: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

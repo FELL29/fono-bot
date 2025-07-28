@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { auditLogger } from '@/lib/audit';
+import { checkAuthServerRate, getRateLimitMessage } from '@/lib/serverRateLimit';
 
 interface AuthContextType {
   user: User | null;
@@ -54,6 +55,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const signUp = async (email: string, password: string, metadata: any) => {
+    // Verificar rate limiting do servidor primeiro
+    const rateLimitCheck = await checkAuthServerRate('signup');
+    if (!rateLimitCheck.allowed) {
+      const message = getRateLimitMessage(rateLimitCheck);
+      return { 
+        error: { 
+          message: message || 'Muitas tentativas de cadastro. Tente novamente mais tarde.' 
+        } 
+      };
+    }
+
     const redirectUrl = `${window.location.origin}/`;
     
     const { data, error } = await supabase.auth.signUp({
@@ -74,6 +86,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    // Verificar rate limiting do servidor primeiro
+    const rateLimitCheck = await checkAuthServerRate('login');
+    if (!rateLimitCheck.allowed) {
+      const message = getRateLimitMessage(rateLimitCheck);
+      return { 
+        error: { 
+          message: message || 'Muitas tentativas de login. Tente novamente mais tarde.' 
+        } 
+      };
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,

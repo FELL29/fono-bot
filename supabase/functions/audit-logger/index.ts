@@ -50,9 +50,23 @@ serve(async (req) => {
     }
 
     // Obter informações da requisição
-    const clientIP = req.headers.get('x-forwarded-for') || 
-                    req.headers.get('x-real-ip') || 
-                    'unknown';
+    const forwarded = req.headers.get('x-forwarded-for');
+    let clientIP = 'unknown';
+    
+    if (forwarded) {
+      // Pegar apenas o primeiro IP da lista e validar se é um IP válido
+      const firstIp = forwarded.split(',')[0].trim();
+      // Validação básica de IP (IPv4)
+      const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+      if (ipRegex.test(firstIp)) {
+        clientIP = firstIp;
+      }
+    } else {
+      const realIp = req.headers.get('x-real-ip');
+      if (realIp && /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(realIp)) {
+        clientIP = realIp;
+      }
+    }
     const userAgent = req.headers.get('user-agent') || 'unknown';
 
     // Sanitizar dados sensíveis
