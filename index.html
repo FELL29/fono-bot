@@ -26,6 +26,13 @@
       connect-src 'self' https://odqusjfkoysubywazqnq.supabase.co wss://odqusjfkoysubywazqnq.supabase.co https://api.whatsapp.com;
     " />
 
+    <!-- Security Headers -->
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()" />
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="FonoBot - Exercícios de Fonoaudiologia para Crianças" />
