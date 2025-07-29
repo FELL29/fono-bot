@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-csrf-token',
 }
 
 interface AuditRequest {
@@ -39,6 +39,22 @@ serve(async (req) => {
 
     if (authError || !user) {
       throw new Error('Invalid authentication');
+    }
+
+    // Validar token CSRF para requisições que alteram dados
+    const method = req.method;
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      const csrfToken = req.headers.get('X-CSRF-Token');
+      if (!csrfToken) {
+        console.error('Missing CSRF token for', method, 'request');
+        throw new Error('CSRF token required');
+      }
+      
+      // Validação básica do token CSRF (formato)
+      if (csrfToken.length < 32 || !/^[a-fA-F0-9]+$/.test(csrfToken)) {
+        console.error('Invalid CSRF token format');
+        throw new Error('Invalid CSRF token');
+      }
     }
 
     // Obter dados da requisição

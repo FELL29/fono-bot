@@ -9,6 +9,7 @@ import ErrorBoundary from "@/components/ui/error-boundary";
 import { LoadingState } from "@/components/ui/loading-spinner";
 import { BackupService } from "@/components/BackupService";
 import { LocalStorageMigration } from "@/components/LocalStorageMigration";
+import { CSRFProvider } from "@/contexts/CSRFContext";
 
 // Lazy load all pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -47,28 +48,30 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
-          <LocalStorageMigration />
-          <BackupService />
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<PageSuspense><Index /></PageSuspense>} />
-              <Route path="/sobre" element={<PageSuspense><About /></PageSuspense>} />
-              <Route path="/contato" element={<PageSuspense><Contact /></PageSuspense>} />
-              <Route path="/privacidade" element={<PageSuspense><Privacy /></PageSuspense>} />
-              <Route path="/termos" element={<PageSuspense><TermsOfService /></PageSuspense>} />
-              <Route path="/faq" element={<PageSuspense><FAQ /></PageSuspense>} />
-              <Route path="/avaliacao" element={<PageSuspense><Assessment /></PageSuspense>} />
-              <Route path="/auth" element={<PageSuspense><Auth /></PageSuspense>} />
-              <Route path="/reset-password" element={<PageSuspense><ResetPassword /></PageSuspense>} />
-              <Route path="/trilhas" element={<PageSuspense><Tracks /></PageSuspense>} />
-              <Route path="/dashboard" element={<PageSuspense><Dashboard /></PageSuspense>} />
-              <Route path="/seguranca" element={<PageSuspense><SecurityDashboard /></PageSuspense>} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<PageSuspense><NotFound /></PageSuspense>} />
-            </Routes>
-          </BrowserRouter>
+          <CSRFProvider>
+            <LocalStorageMigration />
+            <BackupService />
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<PageSuspense><Index /></PageSuspense>} />
+                <Route path="/sobre" element={<PageSuspense><About /></PageSuspense>} />
+                <Route path="/contato" element={<PageSuspense><Contact /></PageSuspense>} />
+                <Route path="/privacidade" element={<PageSuspense><Privacy /></PageSuspense>} />
+                <Route path="/termos" element={<PageSuspense><TermsOfService /></PageSuspense>} />
+                <Route path="/faq" element={<PageSuspense><FAQ /></PageSuspense>} />
+                <Route path="/avaliacao" element={<PageSuspense><Assessment /></PageSuspense>} />
+                <Route path="/auth" element={<PageSuspense><Auth /></PageSuspense>} />
+                <Route path="/reset-password" element={<PageSuspense><ResetPassword /></PageSuspense>} />
+                <Route path="/trilhas" element={<PageSuspense><Tracks /></PageSuspense>} />
+                <Route path="/dashboard" element={<PageSuspense><Dashboard /></PageSuspense>} />
+                <Route path="/seguranca" element={<PageSuspense><SecurityDashboard /></PageSuspense>} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<PageSuspense><NotFound /></PageSuspense>} />
+              </Routes>
+            </BrowserRouter>
+          </CSRFProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>

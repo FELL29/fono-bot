@@ -4,6 +4,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { sanitizeForLogging, generateSessionId } from './security';
+import { addCSRFHeaders } from '@/lib/csrf';
 
 export type AuditEventType = 
   | 'login'
@@ -51,8 +52,10 @@ export async function logAuditEvent(event: Omit<AuditEvent, 'timestamp' | 'ip_ad
       // IP será obtido no servidor
     };
 
-    // Enviar para API de auditoria server-side
+    // Enviar para API de auditoria server-side com proteção CSRF
     try {
+      const headers = addCSRFHeaders();
+      
       await supabase.functions.invoke('audit-logger', {
         body: {
           event_type: event.event_type,
@@ -60,7 +63,8 @@ export async function logAuditEvent(event: Omit<AuditEvent, 'timestamp' | 'ip_ad
           success: event.success,
           risk_level: event.risk_level,
           session_id: generateSessionId()
-        }
+        },
+        headers
       });
     } catch (apiError) {
       console.warn('Failed to send audit to server, saving locally:', apiError);
