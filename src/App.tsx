@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import { LoadingState } from "@/components/ui/loading-spinner";
 import { BackupService } from "@/components/BackupService";
+import { LocalStorageMigration } from "@/components/LocalStorageMigration";
 
 // Lazy load all pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -46,6 +47,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
+          <LocalStorageMigration />
           <BackupService />
           <Toaster />
           <Sonner />
