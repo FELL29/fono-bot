@@ -76,7 +76,7 @@ export const ChildCard = memo(({ child, progress = 0, onEdit, onDelete, onClick 
               </CardTitle>
               <CardDescription className="flex items-center gap-2 text-sm">
                 <Calendar className="h-3 w-3" />
-                {child.child_age} meses
+                {child.child_age} {child.child_age === 1 ? 'ano' : 'anos'}
               </CardDescription>
             </div>
           </div>

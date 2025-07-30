@@ -144,9 +144,8 @@ const Dashboard = () => {
 
   const handleEditChild = useCallback((childId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    // TODO: Implementar edição do perfil da criança
-    console.log('Editar criança:', childId);
-  }, []);
+    navigate(`/avaliacao?edit=${childId}`);
+  }, [navigate]);
 
   const handleDeleteChild = useCallback(async (childId: string, e: React.MouseEvent) => {
     e.stopPropagation();
