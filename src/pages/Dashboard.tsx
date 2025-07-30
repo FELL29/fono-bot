@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { LoadingState, StatusIndicator, InlineLoading } from '@/components/ui/loading-spinner';
 import { DashboardSkeleton, ActivitySkeleton } from '@/components/ui/skeleton';
@@ -43,6 +45,11 @@ const Dashboard = () => {
   const [selectedChild, setSelectedChild] = useState<Child | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingChild, setEditingChild] = useState<Child | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editAge, setEditAge] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
   const [progressData, setProgressData] = useState<Record<string, number>>({});
   const [completedActivities, setCompletedActivities] = useState<Set<string>>(new Set());
   const [isMarkingComplete, setIsMarkingComplete] = useState<string | null>(null);
@@ -144,8 +151,54 @@ const Dashboard = () => {
 
   const handleEditChild = useCallback((childId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/avaliacao?edit=${childId}`);
-  }, [navigate]);
+    const child = children.find(c => c.id === childId);
+    if (child) {
+      setEditingChild(child);
+      setEditName(child.child_name);
+      setEditAge(child.child_age.toString());
+      setEditDialogOpen(true);
+    }
+  }, [children]);
+
+  const handleUpdateChild = useCallback(async () => {
+    if (!editingChild || !editName.trim() || !editAge.trim()) return;
+
+    setIsUpdating(true);
+    showOperationToast.loading("Atualizando dados da criança");
+
+    try {
+      const { error } = await supabase
+        .from('children')
+        .update({
+          child_name: editName.trim(),
+          child_age: parseInt(editAge)
+        })
+        .eq('id', editingChild.id)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      // Update local state
+      const updatedChildren = children.map(child => 
+        child.id === editingChild.id 
+          ? { ...child, child_name: editName.trim(), child_age: parseInt(editAge) }
+          : child
+      );
+
+      // Force re-fetch to get updated data
+      window.location.reload();
+
+      showOperationToast.success("Dados da criança atualizados com sucesso");
+      setEditDialogOpen(false);
+      setEditingChild(null);
+      setEditName('');
+      setEditAge('');
+    } catch (error) {
+      showOperationToast.error("atualizar dados da criança");
+    } finally {
+      setIsUpdating(false);
+    }
+  }, [editingChild, editName, editAge, user?.id, children]);
 
   const handleDeleteChild = useCallback(async (childId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -414,6 +467,61 @@ const Dashboard = () => {
                 </p>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Child Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>Editar dados da criança</DialogTitle>
+              <DialogDescription>
+                Altere o nome e a idade da criança
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">Nome da criança</Label>
+                <Input
+                  id="edit-name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Digite o nome da criança"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-age">Idade (em anos)</Label>
+                <Input
+                  id="edit-age"
+                  type="number"
+                  min="1"
+                  max="18"
+                  value={editAge}
+                  onChange={(e) => setEditAge(e.target.value)}
+                  placeholder="Digite a idade"
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setEditDialogOpen(false)}
+                  disabled={isUpdating}
+                >
+                  Cancelar
+                </Button>
+                <EnhancedButton
+                  onClick={handleUpdateChild}
+                  loading={isUpdating}
+                  loadingText="Salvando..."
+                  disabled={!editName.trim() || !editAge.trim()}
+                >
+                  Salvar alterações
+                </EnhancedButton>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
