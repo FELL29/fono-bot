@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { User, Edit3, Trash2, Calendar, Trophy } from 'lucide-react';
+import { User, Edit3, Trash2, Calendar, Trophy, Activity } from 'lucide-react';
+import { useTrackInfo } from '@/hooks/useTrackInfo';
 
 interface Child {
   id: string;
@@ -25,6 +26,7 @@ interface ChildCardProps {
 
 export const ChildCard = memo(({ child, progress = 0, onEdit, onDelete, onClick }: ChildCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { condition, conditionColor } = useTrackInfo(child.track_id);
 
   const daysSinceStart = useMemo(() => 
     Math.floor((Date.now() - new Date(child.created_at).getTime()) / (1000 * 60 * 60 * 24)),
@@ -115,6 +117,15 @@ export const ChildCard = memo(({ child, progress = 0, onEdit, onDelete, onClick 
             </div>
           </div>
           <Progress value={progress} className="h-2 transition-all duration-300" />
+        </div>
+
+        {/* Condition Section */}
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Condição</span>
+          <Badge className={`text-xs border ${conditionColor} animate-fade-in`}>
+            <Activity className="h-3 w-3 mr-1" />
+            {condition}
+          </Badge>
         </div>
 
         {/* Activity Days */}

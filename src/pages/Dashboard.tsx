@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { LoadingState, StatusIndicator, InlineLoading } from '@/components/ui/loading-spinner';
@@ -49,6 +50,7 @@ const Dashboard = () => {
   const [editingChild, setEditingChild] = useState<Child | null>(null);
   const [editName, setEditName] = useState('');
   const [editAge, setEditAge] = useState('');
+  const [editCondition, setEditCondition] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [progressData, setProgressData] = useState<Record<string, number>>({});
   const [completedActivities, setCompletedActivities] = useState<Set<string>>(new Set());
@@ -476,7 +478,7 @@ const Dashboard = () => {
             <DialogHeader>
               <DialogTitle>Editar dados da criança</DialogTitle>
               <DialogDescription>
-                Altere o nome e a idade da criança
+                Altere o nome, idade e condição da criança
               </DialogDescription>
             </DialogHeader>
             
@@ -502,6 +504,21 @@ const Dashboard = () => {
                   onChange={(e) => setEditAge(e.target.value)}
                   placeholder="Digite a idade"
                 />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-condition">Condição</Label>
+                <Select value={editCondition} onValueChange={setEditCondition}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a condição" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="TYPICO">Típico</SelectItem>
+                    <SelectItem value="TEA">TEA (Transtorno do Espectro Autista)</SelectItem>
+                    <SelectItem value="DOWN">Síndrome de Down</SelectItem>
+                    <SelectItem value="ATRASO">Atraso no Desenvolvimento</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               <div className="flex justify-end space-x-2 pt-4">
