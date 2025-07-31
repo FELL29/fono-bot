@@ -199,7 +199,7 @@ const AssessmentForm = () => {
       
       const trackProfile = `${profileForTrack}_${ageRange}`;
       
-      // Find track directly from database instead of using RPC
+      // Find track directly from database with improved fallback
       const { data: trackData, error: trackError } = await supabase
         .from('tracks')
         .select('id')
@@ -208,13 +208,38 @@ const AssessmentForm = () => {
 
       let trackId = null;
       if (trackError || !trackData) {
-        // Try to find any track as fallback
-        const { data: fallbackTrack } = await supabase
-          .from('tracks')
-          .select('id')
-          .limit(1)
-          .single();
-        trackId = fallbackTrack?.id;
+        // Try fallbacks in order of preference
+        const fallbackProfiles = [
+          `TYPICO_${ageRange}`, // Try typical for same age range
+          'TYPICO_1_3',         // Try typical 1-3 years
+          'DOWN_1_3',           // Try Down syndrome 1-3 years
+          'TEA_4_6',            // Try TEA 4-6 years
+          'ATRASO_4_6'          // Try delay 4-6 years
+        ];
+        
+        for (const fallbackProfile of fallbackProfiles) {
+          const { data: fallbackTrack } = await supabase
+            .from('tracks')
+            .select('id')
+            .eq('profile', fallbackProfile)
+            .limit(1)
+            .single();
+            
+          if (fallbackTrack) {
+            trackId = fallbackTrack.id;
+            break;
+          }
+        }
+        
+        // Last resort: get any available track
+        if (!trackId) {
+          const { data: anyTrack } = await supabase
+            .from('tracks')
+            .select('id')
+            .limit(1)
+            .single();
+          trackId = anyTrack?.id;
+        }
       } else {
         trackId = trackData.id;
       }

@@ -139,11 +139,24 @@ export const useChildren = () => {
         (Date.now() - new Date(child.created_at).getTime()) / (1000 * 60 * 60 * 24)
       );
 
+      // Primeiro, verificar o número máximo de dias disponíveis para este track
+      const { data: maxDayData } = await supabase
+        .from('activities')
+        .select('day_index')
+        .eq('track_id', child.track_id)
+        .order('day_index', { ascending: false })
+        .limit(1);
+
+      const maxDay = maxDayData?.[0]?.day_index ?? 4; // Fallback para 4 se não encontrar
+      
+      // Implementar sistema cíclico: se passou do último dia, volta ao início
+      const cyclicDay = daysSinceStart % (maxDay + 1);
+
       const { data: activities, error } = await supabase
         .from('activities')
         .select('*')
         .eq('track_id', child.track_id)
-        .eq('day_index', daysSinceStart)
+        .eq('day_index', cyclicDay)
         .order('created_at');
 
       if (error) throw error;
