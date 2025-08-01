@@ -70,21 +70,27 @@ export const useSecureValidation = <T>(schema: z.ZodSchema<T>) => {
   const validateField = useMemo(() => {
     return (fieldName: string, value: unknown): { isValid: boolean; error?: string } => {
       try {
-        // Simple field validation using the full schema
-        const result = schema.safeParse({ [fieldName]: value });
+        // Get the field schema from the main schema
+        const schemaShape = (schema as any)._def?.shape;
+        if (!schemaShape || !schemaShape[fieldName]) {
+          return { isValid: true }; // If field not in schema, consider valid
+        }
+        
+        const fieldSchema = schemaShape[fieldName];
+        
+        // Validate only this specific field
+        const result = fieldSchema.safeParse(value);
         
         if (result.success) {
           return { isValid: true };
         } else {
-          const fieldError = result.error.issues.find(issue => 
-            issue.path.includes(fieldName)
-          );
           return { 
             isValid: false, 
-            error: fieldError?.message || 'Campo inválido' 
+            error: result.error.issues[0]?.message || 'Campo inválido' 
           };
         }
       } catch (error) {
+        console.error('Field validation error:', error);
         return { 
           isValid: false, 
           error: 'Erro de validação' 

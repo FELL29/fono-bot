@@ -65,6 +65,7 @@ const AssessmentForm = () => {
   const totalSteps = 8;
 
   const updateFormData = (field: string, value: any) => {
+    console.log(`Updating field: ${field}, value: ${value}, type: ${typeof value}`);
     // Sanitize input based on field type
     let sanitizedValue = value;
     
@@ -94,8 +95,8 @@ const AssessmentForm = () => {
       });
     }
     
-    // Validate field if it has content
-    if (sanitizedValue && typeof sanitizedValue === 'string' && sanitizedValue.trim()) {
+    // Validate field only if it has meaningful content and user has interacted with it
+    if (sanitizedValue && typeof sanitizedValue === 'string' && sanitizedValue.trim().length > 0) {
       const fieldValidation = validateField(field, sanitizedValue);
       if (!fieldValidation.isValid && fieldValidation.error) {
         setFieldErrors(prev => ({ ...prev, [field]: fieldValidation.error! }));
@@ -422,13 +423,16 @@ const AssessmentForm = () => {
                 )}
               </div>
               
-              <div className="space-y-2">
+               <div className="space-y-2">
                 <Label>Idade da criança em anos *</Label>
-                <Select onValueChange={(value) => updateFormData("child_age", value)}>
+                <Select 
+                  value={formData.child_age} 
+                  onValueChange={(value) => updateFormData("child_age", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a idade" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background border shadow-lg z-50">
                     {Array.from({ length: 14 }, (_, i) => i + 1).map((age) => (
                       <SelectItem key={age} value={age.toString()}>
                         {age} {age === 1 ? 'ano' : 'anos'}
