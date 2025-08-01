@@ -147,10 +147,13 @@ export const useChildren = () => {
         .order('day_index', { ascending: false })
         .limit(1);
 
-      const maxDay = maxDayData?.[0]?.day_index ?? 4; // Fallback para 4 se não encontrar
+      const maxDay = maxDayData?.[0]?.day_index ?? 5; // Fallback para 5 se não encontrar
       
       // Implementar sistema cíclico: se passou do último dia, volta ao início
-      const cyclicDay = daysSinceStart % (maxDay + 1);
+      // O day_index no banco vai de 1 a 5, então precisamos ajustar o cálculo
+      const cyclicDay = (daysSinceStart % maxDay) + 1;
+
+      console.log(`Child: ${child.child_name}, Days since start: ${daysSinceStart}, Max day: ${maxDay}, Cyclic day: ${cyclicDay}`);
 
       const { data: activities, error } = await supabase
         .from('activities')
@@ -159,9 +162,15 @@ export const useChildren = () => {
         .eq('day_index', cyclicDay)
         .order('created_at');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching activities:', error);
+        throw error;
+      }
+      
+      console.log(`Found ${activities?.length || 0} activities for day ${cyclicDay}`);
       return activities || [];
     } catch (error) {
+      console.error('Error in getTodayActivities:', error);
       return [];
     }
   }, []);
