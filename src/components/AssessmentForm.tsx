@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { assessmentFormSchema } from '@/lib/validations';
 import { useSecureValidation } from '@/hooks/useSecureValidation';
 import { sanitizeName, sanitizeText, sanitizeAge } from '@/lib/sanitize';
-import { checkFormSubmissionRate } from '@/lib/security';
+import { checkFormSubmissionRate, clearFormRateLimit } from '@/lib/security';
 
 const AssessmentForm = () => {
   const { toast } = useToast();
@@ -151,6 +151,8 @@ const AssessmentForm = () => {
         description: firstError,
         variant: "destructive",
       });
+      // Clear rate limit on validation error so user can try again
+      clearFormRateLimit('assessment');
       return;
     }
 

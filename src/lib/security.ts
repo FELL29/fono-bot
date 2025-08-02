@@ -40,8 +40,20 @@ export const rateLimiter = new RateLimiter();
  */
 export const checkFormSubmissionRate = (formType: string): boolean => {
   const key = `form-${formType}`;
-  // Permite 3 submissões por minuto
+  // Permite 5 submissões por 2 minutos para assessment (mais permissivo)
+  if (formType === 'assessment') {
+    return rateLimiter.isAllowed(key, 5, 2 * 60 * 1000);
+  }
+  // Permite 3 submissões por minuto para outros forms
   return rateLimiter.isAllowed(key, 3, 60 * 1000);
+};
+
+/**
+ * Limpa o rate limiting para um formulário específico
+ */
+export const clearFormRateLimit = (formType: string): void => {
+  const key = `form-${formType}`;
+  rateLimiter.clear(key);
 };
 
 /**
