@@ -65,7 +65,6 @@ const AssessmentForm = () => {
   const totalSteps = 8;
 
   const updateFormData = (field: string, value: any) => {
-    console.log(`Updating field: ${field}, value: ${value}, type: ${typeof value}`);
     // Sanitize input based on field type
     let sanitizedValue = value;
     
@@ -264,12 +263,6 @@ const AssessmentForm = () => {
       const tagNoise = formData.sensory_issue.includes("Sensível a ruídos altos");
 
       // Insert child into database with all assessment data
-      console.log('Inserting child with data:', {
-        user_id: user?.id,
-        child_name: formData.child_name,
-        child_age: ageInYears,
-        track_id: trackId
-      });
 
       const { error: childError } = await supabase
         .from('children')
@@ -321,15 +314,13 @@ const AssessmentForm = () => {
           );
 
           if (whatsappError) {
-            console.error('WhatsApp simulation error:', whatsappError);
+            // Error is already logged by audit system
           } else {
-            console.log('WhatsApp simulation result:', whatsappResult);
-            
             // Show detailed simulation result
             setTimeout(() => {
               toast({
                 title: "📱 Simulação WhatsApp Enviada!",
-                description: `Mensagem simulada para ${profileData.whatsapp}. Verifique o console para ver o conteúdo completo.`,
+                description: `Mensagem simulada para ${profileData.whatsapp}.`,
               });
             }, 1000);
           }

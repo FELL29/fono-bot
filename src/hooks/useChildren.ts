@@ -153,8 +153,6 @@ export const useChildren = () => {
       // O day_index no banco vai de 1 a 5, então precisamos ajustar o cálculo
       const cyclicDay = (daysSinceStart % maxDay) + 1;
 
-      console.log(`Child: ${child.child_name}, Days since start: ${daysSinceStart}, Max day: ${maxDay}, Cyclic day: ${cyclicDay}`);
-
       const { data: activities, error } = await supabase
         .from('activities')
         .select('*')
@@ -163,14 +161,10 @@ export const useChildren = () => {
         .order('created_at');
 
       if (error) {
-        console.error('Error fetching activities:', error);
         throw error;
       }
-      
-      console.log(`Found ${activities?.length || 0} activities for day ${cyclicDay}`);
       return activities || [];
     } catch (error) {
-      console.error('Error in getTodayActivities:', error);
       return [];
     }
   }, []);

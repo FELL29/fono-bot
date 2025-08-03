@@ -102,10 +102,7 @@ export const useLocalStorageMigration = () => {
         );
       }
 
-      console.log(`✅ Migração do localStorage concluída: ${migratedCount} itens processados`);
-
     } catch (error) {
-      console.error('❌ Erro durante migração do localStorage:', error);
       
       if (user) {
         auditLogger.dataAccess(user.id, 'localStorage_migration_failed', 
