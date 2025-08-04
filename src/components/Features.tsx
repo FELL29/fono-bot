@@ -1,33 +1,45 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Brain, Target, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Users, Brain, Target, Shield, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Features = () => {
+  const navigate = useNavigate();
+
   const categories = [
     {
       icon: Users,
       title: "Crianças Típicas",
       description: "Atividades para estimular o desenvolvimento natural da fala e linguagem",
-      color: "bg-primary/10 text-primary"
+      color: "bg-primary/10 text-primary",
+      profile: "typico"
     },
     {
       icon: Brain,
       title: "Síndrome de Down",
       description: "Exercícios adaptados para potencializar as habilidades comunicativas",
-      color: "bg-secondary/10 text-secondary"
+      color: "bg-secondary/10 text-secondary",
+      profile: "down"
     },
     {
       icon: Target,
       title: "Espectro Autista",
       description: "Estímulos especializados para comunicação e interação social",
-      color: "bg-accent/10 text-accent"
+      color: "bg-accent/10 text-accent",
+      profile: "tea"
     },
     {
       icon: Shield,
       title: "Transtornos de Linguagem",
       description: "Terapias direcionadas para dificuldades específicas de comunicação",
-      color: "bg-primary-glow/10 text-primary"
+      color: "bg-primary-glow/10 text-primary",
+      profile: "atraso"
     }
   ];
+
+  const handleCategoryClick = (profile: string) => {
+    navigate(`/assessment?profile=${profile}`);
+  };
 
   return (
     <section id="recursos" className="py-20 bg-muted/30">
@@ -46,15 +58,27 @@ const Features = () => {
           {categories.map((category, index) => {
             const IconComponent = category.icon;
             return (
-              <Card key={index} className="hover:shadow-soft transition-all duration-300 border-border/50">
+              <Card 
+                key={index} 
+                className="hover:shadow-soft transition-all duration-300 border-border/50 cursor-pointer group hover:scale-105"
+                onClick={() => handleCategoryClick(category.profile)}
+              >
                 <CardContent className="p-6 text-center space-y-4">
-                  <div className={`w-16 h-16 mx-auto rounded-xl ${category.color} flex items-center justify-center`}>
+                  <div className={`w-16 h-16 mx-auto rounded-xl ${category.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                     <IconComponent className="w-8 h-8" />
                   </div>
                   <h3 className="text-lg font-semibold text-foreground">{category.title}</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     {category.description}
                   </p>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  >
+                    Iniciar Avaliação
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
                 </CardContent>
               </Card>
             );
