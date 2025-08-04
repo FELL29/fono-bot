@@ -12,6 +12,7 @@ interface Child {
   child_age: number;
   track_id: string;
   user_id: string;
+  created_at?: string;
 }
 
 interface Activity {
@@ -48,7 +49,7 @@ export const useOptimizedChildren = () => {
 
       const { data, error } = await supabase
         .from('children')
-        .select('id, child_name, child_age, track_id, user_id')
+        .select('id, child_name, child_age, track_id, user_id, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
