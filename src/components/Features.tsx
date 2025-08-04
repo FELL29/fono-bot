@@ -12,33 +12,33 @@ const Features = () => {
       title: "Crianças Típicas",
       description: "Atividades para estimular o desenvolvimento natural da fala e linguagem",
       color: "bg-primary/10 text-primary",
-      profile: "typico"
+      route: "/criancas-tipicas"
     },
     {
       icon: Brain,
       title: "Síndrome de Down",
       description: "Exercícios adaptados para potencializar as habilidades comunicativas",
       color: "bg-secondary/10 text-secondary",
-      profile: "down"
+      route: "/sindrome-down"
     },
     {
       icon: Target,
       title: "Espectro Autista",
       description: "Estímulos especializados para comunicação e interação social",
       color: "bg-accent/10 text-accent",
-      profile: "tea"
+      route: "/espectro-autista"
     },
     {
       icon: Shield,
       title: "Transtornos de Linguagem",
       description: "Terapias direcionadas para dificuldades específicas de comunicação",
       color: "bg-primary-glow/10 text-primary",
-      profile: "atraso"
+      route: "/transtornos-linguagem"
     }
   ];
 
-  const handleCategoryClick = (profile: string) => {
-    navigate(`/assessment?profile=${profile}`);
+  const handleCategoryClick = (route: string) => {
+    navigate(route);
   };
 
   return (
@@ -61,7 +61,7 @@ const Features = () => {
               <Card 
                 key={index} 
                 className="hover:shadow-soft transition-all duration-300 border-border/50 cursor-pointer group hover:scale-105"
-                onClick={() => handleCategoryClick(category.profile)}
+                onClick={() => handleCategoryClick(category.route)}
               >
                 <CardContent className="p-6 text-center space-y-4">
                   <div className={`w-16 h-16 mx-auto rounded-xl ${category.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>

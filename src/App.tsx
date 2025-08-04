@@ -27,6 +27,12 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Tracks = lazy(() => import("./pages/Tracks"));
 const SecurityDashboard = lazy(() => import("@/components/SecurityDashboard").then(module => ({ default: module.SecurityDashboard })));
 
+// Profile-specific pages
+const CriancasTypicas = lazy(() => import("./pages/CriancasTypicas"));
+const SindromeDown = lazy(() => import("./pages/SindromeDown"));
+const EspectroAutista = lazy(() => import("./pages/EspectroAutista"));
+const TranstornosLinguagem = lazy(() => import("./pages/TranstornosLinguagem"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -77,6 +83,13 @@ const App = () => {
                     <Route path="/trilhas" element={<PageSuspense><Tracks /></PageSuspense>} />
                     <Route path="/dashboard" element={<PageSuspense><Dashboard /></PageSuspense>} />
                     <Route path="/seguranca" element={<PageSuspense><SecurityDashboard /></PageSuspense>} />
+                    
+                    {/* Profile-specific routes */}
+                    <Route path="/criancas-tipicas" element={<PageSuspense><CriancasTypicas /></PageSuspense>} />
+                    <Route path="/sindrome-down" element={<PageSuspense><SindromeDown /></PageSuspense>} />
+                    <Route path="/espectro-autista" element={<PageSuspense><EspectroAutista /></PageSuspense>} />
+                    <Route path="/transtornos-linguagem" element={<PageSuspense><TranstornosLinguagem /></PageSuspense>} />
+                    
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<PageSuspense><NotFound /></PageSuspense>} />
                   </Routes>
