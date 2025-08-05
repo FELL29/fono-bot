@@ -110,10 +110,30 @@ const CriancasTypicas = () => {
               <CardContent className="p-8 text-center">
                 <h2 className="text-2xl font-bold mb-6">A Solução FonoBot</h2>
                 <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-                  Nosso sistema inteligente oferece atividades personalizadas baseadas na idade e desenvolvimento 
-                  da criança, com orientações claras para os pais e acompanhamento profissional via WhatsApp. 
-                  Transformamos o aprendizado em uma experiência divertida e eficaz.
+                  Através de uma avaliação personalizada, criamos trilhas de exercícios específicas para seu filho. 
+                  Com vídeos didáticos, ensinamos você a aplicar as atividades em casa, tornando-se o principal 
+                  estimulador do desenvolvimento de sua criança.
                 </p>
+                
+                <div className="grid md:grid-cols-2 gap-6 my-8">
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="font-semibold mb-2">📚 Vídeos Didáticos</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Aprenda a técnica correta com nossos vídeos educativos especializados
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="font-semibold mb-2">🎯 Trilhas Personalizadas</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Exercícios adaptados à idade e necessidades específicas do seu filho
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+                
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button 
                     onClick={() => navigate('/assessment?profile=typico')}

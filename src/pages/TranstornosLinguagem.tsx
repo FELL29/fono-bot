@@ -118,12 +118,30 @@ const TranstornosLinguagem = () => {
               <CardContent className="p-8 text-center">
                 <h2 className="text-2xl font-bold mb-6">A Solução FonoBot</h2>
                 <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-                  Desenvolvemos protocolos específicos para cada tipo de transtorno de linguagem, 
-                  oferecendo exercícios direcionados e progressivos. Nossa plataforma permite 
-                  identificação precoce através de triagem especializada, atividades terapêuticas 
-                  domiciliares e acompanhamento profissional contínuo, garantindo que nenhuma criança 
-                  fique sem o suporte necessário.
+                  Desenvolvemos trilhas específicas para transtornos de linguagem, com vídeos didáticos 
+                  que ensinam técnicas terapêuticas adaptadas. Transformamos você no principal 
+                  agente de intervenção precoce do seu filho.
                 </p>
+                
+                <div className="grid md:grid-cols-2 gap-6 my-8">
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="font-semibold mb-2">⚡ Intervenção Precoce</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Estratégias específicas para cada tipo de transtorno
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="font-semibold mb-2">📈 Progresso Contínuo</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Exercícios progressivos adaptados ao ritmo da criança
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+                
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button 
                     onClick={() => navigate('/assessment?profile=atraso')}

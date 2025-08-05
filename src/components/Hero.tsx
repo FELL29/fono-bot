@@ -28,9 +28,9 @@ const Hero = () => {
               </h1>
               
               <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
-                Atividades personalizadas para crianças típicas, com síndrome de Down, 
-                autismo ou transtornos de linguagem. Desenvolvidas por fonoaudiólogos 
-                especialistas.
+                Trilhas personalizadas com vídeos didáticos para capacitar você a estimular 
+                seu filho em casa. Para crianças típicas, com síndrome de Down, autismo ou 
+                transtornos de linguagem.
               </p>
             </div>
 

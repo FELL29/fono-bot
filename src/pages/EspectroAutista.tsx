@@ -118,11 +118,30 @@ const EspectroAutista = () => {
               <CardContent className="p-8 text-center">
                 <h2 className="text-2xl font-bold mb-6">A Solução FonoBot</h2>
                 <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-                  Nosso sistema utiliza estratégias baseadas em evidências científicas para TEA, 
-                  oferecendo atividades visuais, comunicação alternativa e estímulos sensoriais 
-                  adaptados. Proporcionamos suporte contínuo às famílias através de orientações 
-                  especializadas via WhatsApp, facilitando a generalização das habilidades no ambiente familiar.
+                  Criamos trilhas personalizadas para crianças no espectro autista, com vídeos didáticos 
+                  específicos para desenvolvimento da comunicação funcional. Capacitamos você para ser 
+                  o estimulador diário do seu filho.
                 </p>
+                
+                <div className="grid md:grid-cols-2 gap-6 my-8">
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="font-semibold mb-2">🔄 Rotinas Estruturadas</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Exercícios adaptados ao perfil sensorial e comunicativo
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="font-semibold mb-2">🎯 Comunicação Funcional</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Técnicas visuais para facilitar a expressão e compreensão
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+                
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button 
                     onClick={() => navigate('/assessment?profile=tea')}

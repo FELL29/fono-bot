@@ -118,11 +118,30 @@ const SindromeDown = () => {
               <CardContent className="p-8 text-center">
                 <h2 className="text-2xl font-bold mb-6">A Solução FonoBot</h2>
                 <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-                  Desenvolvemos protocolos específicos para crianças com Síndrome de Down, com atividades 
-                  que respeitam suas características e potencializam suas habilidades. Nosso sistema oferece 
-                  exercícios adaptados, orientação familiar especializada e acompanhamento profissional 
-                  acessível via WhatsApp, garantindo continuidade no desenvolvimento comunicativo.
+                  Desenvolvemos trilhas especializadas para crianças com síndrome de Down, com vídeos didáticos 
+                  que ensinam técnicas específicas para estimular a comunicação. Você se torna o principal 
+                  agente de desenvolvimento do seu filho.
                 </p>
+                
+                <div className="grid md:grid-cols-2 gap-6 my-8">
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="font-semibold mb-2">🎬 Técnicas Especializadas</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Vídeos com métodos comprovados para síndrome de Down
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <h3 className="font-semibold mb-2">👨‍👩‍👧‍👦 Empoderamento Familiar</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Capacitamos a família toda para estimular o desenvolvimento
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+                
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button 
                     onClick={() => navigate('/assessment?profile=down')}
