@@ -19,7 +19,9 @@ import { showOperationToast } from '@/components/ui/feedback-toast';
 import ErrorBoundary from '@/components/ui/error-boundary';
 import { ChildCard } from '@/components/ChildCard';
 import { ActivityProgressTrail } from '@/components/ui/activity-progress-trail';
-import { PlusCircle, Users, Calendar, MessageCircle, LogOut, Home, CheckCircle, Trophy, Shield } from 'lucide-react';
+import { ActivityHistory } from '@/components/ui/activity-history';
+import { GamificationSystem } from '@/components/ui/gamification-system';
+import { PlusCircle, Users, Calendar, MessageCircle, LogOut, Home, CheckCircle, Trophy, Shield, History, Award } from 'lucide-react';
 import WhatsAppSimulation from '@/components/WhatsAppSimulation';
 import { useToast } from '@/hooks/use-toast';
 
@@ -56,6 +58,8 @@ const Dashboard = () => {
   const [progressData, setProgressData] = useState<Record<string, number>>({});
   const [completedActivities, setCompletedActivities] = useState<Set<string>>(new Set());
   const [isMarkingComplete, setIsMarkingComplete] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showGamification, setShowGamification] = useState(false);
   const { toast } = useToast();
 
   const loading = childrenLoading || profileLoading;
@@ -349,6 +353,48 @@ const Dashboard = () => {
                     activities={activities}
                     completedActivities={Array.from(completedActivities)}
                     currentDay={Math.floor((Date.now() - new Date(selectedChild.created_at).getTime()) / (1000 * 60 * 60 * 24)) + 1}
+                    childName={selectedChild.child_name}
+                  />
+                </div>
+              )}
+
+              {/* History and Gamification Controls */}
+              {children.length > 0 && (
+                <div className="flex flex-wrap gap-3 mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: "175ms" }}>
+                  <Button
+                    variant={showHistory ? "default" : "outline"}
+                    onClick={() => setShowHistory(!showHistory)}
+                    className="flex items-center gap-2"
+                  >
+                    <History className="w-4 h-4" />
+                    Histórico de Atividades
+                  </Button>
+                  <Button
+                    variant={showGamification ? "default" : "outline"}
+                    onClick={() => setShowGamification(!showGamification)}
+                    className="flex items-center gap-2"
+                  >
+                    <Award className="w-4 h-4" />
+                    Conquistas
+                  </Button>
+                </div>
+              )}
+
+              {/* Activity History */}
+              {showHistory && selectedChild && (
+                <div className="mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: "200ms" }}>
+                  <ActivityHistory
+                    childId={selectedChild.id}
+                    childName={selectedChild.child_name}
+                  />
+                </div>
+              )}
+
+              {/* Gamification System */}
+              {showGamification && selectedChild && (
+                <div className="mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: "225ms" }}>
+                  <GamificationSystem
+                    childId={selectedChild.id}
                     childName={selectedChild.child_name}
                   />
                 </div>
