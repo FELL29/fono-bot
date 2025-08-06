@@ -18,6 +18,7 @@ import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { showOperationToast } from '@/components/ui/feedback-toast';
 import ErrorBoundary from '@/components/ui/error-boundary';
 import { ChildCard } from '@/components/ChildCard';
+import { ActivityProgressTrail } from '@/components/ui/activity-progress-trail';
 import { PlusCircle, Users, Calendar, MessageCircle, LogOut, Home, CheckCircle, Trophy, Shield } from 'lucide-react';
 import WhatsAppSimulation from '@/components/WhatsAppSimulation';
 import { useToast } from '@/hooks/use-toast';
@@ -340,6 +341,18 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Visual Progress Trail */}
+              {selectedChild && (
+                <div className="mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: "150ms" }}>
+                  <ActivityProgressTrail
+                    activities={activities}
+                    completedActivities={Array.from(completedActivities)}
+                    currentDay={Math.floor((Date.now() - new Date(selectedChild.created_at).getTime()) / (1000 * 60 * 60 * 24)) + 1}
+                    childName={selectedChild.child_name}
+                  />
+                </div>
+              )}
 
               {/* Quick Stats */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 animate-fade-in"
