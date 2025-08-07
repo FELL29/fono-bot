@@ -21,6 +21,7 @@ import { ChildCard } from '@/components/ChildCard';
 import { ActivityProgressTrail } from '@/components/ui/activity-progress-trail';
 import { ActivityHistory } from '@/components/ui/activity-history';
 import { GamificationSystem } from '@/components/ui/gamification-system';
+import { PlayfulGamification } from '@/components/ui/playful-gamification';
 import { PlusCircle, Users, Calendar, MessageCircle, LogOut, Home, CheckCircle, Trophy, Shield, History, Award } from 'lucide-react';
 import WhatsAppSimulation from '@/components/WhatsAppSimulation';
 import { useToast } from '@/hooks/use-toast';
@@ -390,12 +391,13 @@ const Dashboard = () => {
                 </div>
               )}
 
-              {/* Gamification System */}
+              {/* Playful Gamification System */}
               {showGamification && selectedChild && (
                 <div className="mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: "225ms" }}>
-                  <GamificationSystem
+                  <PlayfulGamification
                     childId={selectedChild.id}
                     childName={selectedChild.child_name}
+                    childAge={selectedChild.child_age}
                   />
                 </div>
               )}
