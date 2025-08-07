@@ -91,55 +91,73 @@ export const ActivityProgressTrail: React.FC<ActivityProgressTrailProps> = ({
       
       <CardContent className="space-y-4">
         {/* Stats Summary */}
-        <div className="grid grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-primary">
-              {completionStats.totalCompleted}
+        <div className="grid grid-cols-3 gap-4 p-6 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 rounded-xl border border-primary/20 shadow-lg">
+          <div className="text-center group">
+            <div className="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110">
+              <div className="text-2xl font-bold text-white">
+                {completionStats.totalCompleted}
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground">Concluídas</div>
+            <div className="text-sm font-bold text-green-600">🎉 Concluídas</div>
+            <div className="text-xs text-muted-foreground">Atividades realizadas</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-accent">
-              {currentDay}
+          <div className="text-center group">
+            <div className="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110 animate-pulse">
+              <div className="text-2xl font-bold text-white">
+                {currentDay}
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground">Dia Atual</div>
+            <div className="text-sm font-bold text-blue-600">🚀 Dia Atual</div>
+            <div className="text-xs text-muted-foreground">Onde você está</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-secondary">
-              {completionStats.totalActivities}
+          <div className="text-center group">
+            <div className="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110">
+              <div className="text-2xl font-bold text-white">
+                {completionStats.totalActivities}
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground">Total</div>
+            <div className="text-sm font-bold text-purple-600">⭐ Total</div>
+            <div className="text-xs text-muted-foreground">Meta completa</div>
           </div>
         </div>
 
         {/* Progress Trail */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <Calendar className="w-4 h-4" />
-            Progresso dos Próximos Dias
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-lg font-bold text-primary">
+              <Calendar className="w-5 h-5" />
+              🗺️ Jornada de Aventuras
+            </div>
+            <div className="text-sm font-medium text-accent bg-accent/10 px-3 py-1 rounded-full">
+              {Math.round((completionStats.totalCompleted / Math.max(currentDay, 1)) * 100)}% progresso
+            </div>
           </div>
           
           <ProgressTrail 
             steps={trailSteps}
             orientation="horizontal"
             showDayNumbers={true}
-            className="p-4 bg-gradient-to-r from-background to-muted/20 rounded-lg border"
+            className="shadow-lg"
           />
         </div>
 
-        {/* Legend */}
-        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-primary"></div>
-            Concluído
+        {/* Enhanced Legend */}
+        <div className="flex flex-wrap justify-center gap-6 p-4 bg-gradient-to-r from-secondary/5 to-accent/5 rounded-lg border border-secondary/20">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-green-400 to-emerald-400 shadow-md"></div>
+            <span className="text-green-600">🎉 Concluído</span>
           </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-accent"></div>
-            Atual
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 shadow-md animate-pulse"></div>
+            <span className="text-blue-600">🚀 Atual</span>
           </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-muted"></div>
-            Bloqueado
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 shadow-md"></div>
+            <span className="text-gray-600">🔒 Bloqueado</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 shadow-md"></div>
+            <span className="text-orange-600">⭐ Disponível</span>
           </div>
         </div>
       </CardContent>
