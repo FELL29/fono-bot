@@ -22,6 +22,10 @@ import { ActivityProgressTrail } from '@/components/ui/activity-progress-trail';
 import { ActivityHistory } from '@/components/ui/activity-history';
 import { GamificationSystem } from '@/components/ui/gamification-system';
 import { PlayfulGamification } from '@/components/ui/playful-gamification';
+import { OnboardingTour } from '@/components/OnboardingTour';
+import { WeeklyCalendar } from '@/components/WeeklyCalendar';
+import { ActivityCards } from '@/components/ActivityCards';
+import { DevelopmentInsights } from '@/components/DevelopmentInsights';
 import { PlusCircle, Users, Calendar, MessageCircle, LogOut, Home, CheckCircle, Trophy, Shield, History, Award } from 'lucide-react';
 import WhatsAppSimulation from '@/components/WhatsAppSimulation';
 import { useToast } from '@/hooks/use-toast';
@@ -61,7 +65,16 @@ const Dashboard = () => {
   const [isMarkingComplete, setIsMarkingComplete] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showGamification, setShowGamification] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { toast } = useToast();
+
+  // Check if user needs onboarding
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('fonobot-onboarding-completed');
+    if (!hasSeenOnboarding && user && children.length === 0) {
+      setShowOnboarding(true);
+    }
+  }, [user, children]);
 
   const loading = childrenLoading || profileLoading;
 
@@ -299,7 +312,7 @@ const Dashboard = () => {
             </p>
           </div>
 
-          {/* Children Cards */}
+              {/* Children Cards */}
           {children.length === 0 ? (
             <div className="text-center py-12 animate-fade-in">
               <MessageCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -307,7 +320,11 @@ const Dashboard = () => {
               <p className="text-muted-foreground mb-4">
                 Faça uma avaliação para começar a usar o FonoBot
               </p>
-              <EnhancedButton onClick={() => navigate('/avaliacao')} variant="gradient">
+              <EnhancedButton 
+                onClick={() => navigate('/avaliacao')} 
+                variant="gradient"
+                data-onboarding-target="add-child-button"
+              >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Fazer Avaliação
               </EnhancedButton>
@@ -336,6 +353,7 @@ const Dashboard = () => {
                   className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] border-dashed border-2 border-muted hover-scale animate-fade-in"
                   onClick={() => navigate('/avaliacao')}
                   style={{ animationDelay: `${children.length * 100}ms` }}
+                  data-onboarding-target="add-child-button"
                 >
                   <CardContent className="flex flex-col items-center justify-center h-full py-8 text-center">
                     <PlusCircle className="w-12 h-12 text-muted-foreground mb-4" />
@@ -347,9 +365,56 @@ const Dashboard = () => {
                 </Card>
               </div>
 
+              {/* Enhanced Dashboard Sections */}
+              <div className="grid gap-6 lg:grid-cols-3">
+                {/* Main Content Column */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Weekly Calendar */}
+                  <div data-onboarding-target="activities-section">
+                    <WeeklyCalendar childId={primaryChild?.id} />
+                  </div>
+
+                  {/* Today's Activities Cards */}
+                  {selectedChild && activities.length > 0 && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold">Atividades de Hoje</h3>
+                        <Badge variant="secondary">
+                          {activities.filter(a => completedActivities.has(a.id)).length} de {activities.length} concluídas
+                        </Badge>
+                      </div>
+                      <ActivityCards
+                        activities={activities.map(a => ({
+                          ...a,
+                          completed: completedActivities.has(a.id),
+                          category: 'Fala',
+                          difficulty: 'medium' as const,
+                          duration: '5-10 min'
+                        }))}
+                        onActivityComplete={markActivityCompleted}
+                        isMarkingComplete={isMarkingComplete}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Sidebar Column */}
+                <div className="space-y-6">
+                  {/* Development Insights */}
+                  {primaryChild && (
+                    <div data-onboarding-target="insights-section">
+                      <DevelopmentInsights
+                        child={primaryChild}
+                        progressData={progressData[primaryChild.id] || 0}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Visual Progress Trail */}
               {selectedChild && (
-                <div className="mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: "150ms" }}>
+                <div className="mb-6 sm:mb-8 animate-fade-in" data-onboarding-target="progress-section" style={{ animationDelay: "150ms" }}>
                   <ActivityProgressTrail
                     activities={activities}
                     completedActivities={Array.from(completedActivities)}
@@ -393,7 +458,7 @@ const Dashboard = () => {
 
               {/* Playful Gamification System */}
               {showGamification && selectedChild && (
-                <div className="mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: "225ms" }}>
+                <div className="mb-6 sm:mb-8 animate-fade-in" data-onboarding-target="gamification-section" style={{ animationDelay: "225ms" }}>
                   <PlayfulGamification
                     childId={selectedChild.id}
                     childName={selectedChild.child_name}
@@ -602,6 +667,19 @@ const Dashboard = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Onboarding Tour */}
+        <OnboardingTour
+          isOpen={showOnboarding}
+          onComplete={() => {
+            localStorage.setItem('fonobot-onboarding-completed', 'true');
+            setShowOnboarding(false);
+          }}
+          onSkip={() => {
+            localStorage.setItem('fonobot-onboarding-completed', 'true');
+            setShowOnboarding(false);
+          }}
+        />
       </div>
     </ErrorBoundary>
   );
