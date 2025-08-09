@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Heart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
-import heroImage from "@/assets/fonobot-hero.jpg";
+import heroImage from "@/assets/tiafono-character.png";
 
 const Hero = () => {
   return (
@@ -20,34 +20,32 @@ const Hero = () => {
               </div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
-                <span className="text-foreground">Exercícios de</span>{" "}
+                <span className="text-foreground">A</span>{" "}
                 <span className="bg-gradient-primary bg-clip-text text-transparent">
-                  Fonoaudiologia
+                  TiaFono
                 </span>{" "}
-                <span className="text-foreground">para seu filho</span>
+                <span className="text-foreground">ajuda crianças a se comunicarem melhor todos os dias.</span>
               </h1>
               
               <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
-                Trilhas personalizadas com vídeos didáticos para capacitar você a estimular 
-                seu filho em casa. Para crianças típicas, com síndrome de Down, autismo ou 
-                transtornos de linguagem.
+                Comece hoje a estimular o desenvolvimento de forma divertida.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" variant="hero" className="text-lg px-8 py-6" asChild>
                 <Link to="/avaliacao">
-                  Iniciar Avaliação Gratuita
+                  Comece Agora
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6"
+                className="text-lg px-8 py-6 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                 onClick={() => window.open('https://www.youtube.com/watch?v=demo', '_blank')}
               >
-                Assistir Demo
+                Ver Demonstração
               </Button>
             </div>
 
