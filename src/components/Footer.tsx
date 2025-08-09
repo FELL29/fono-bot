@@ -1,5 +1,6 @@
 import { MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import fonoBotIcon from "@/assets/fonobot-icon.png";
 
 const Footer = () => {
   return (
@@ -8,8 +9,8 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-primary-foreground" />
+              <div className="w-8 h-8 flex items-center justify-center">
+                <img src={fonoBotIcon} alt="FonoBot" className="w-8 h-8" />
               </div>
               <span className="text-xl font-bold">FonoBot</span>
             </Link>
