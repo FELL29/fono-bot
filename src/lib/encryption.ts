@@ -3,15 +3,20 @@
  * Usa AES-GCM para criptografia simétrica segura
  */
 
-// Chave de criptografia base (em produção, deve vir de variável de ambiente)
-const ENCRYPTION_KEY_BASE = 'fonobot-security-key-2024';
+// Gera chave de criptografia segura baseada na sessão do usuário
+const getEncryptionKeyBase = (userContext?: string): string => {
+  // Em produção, isso deve vir de variáveis de ambiente/secrets do Supabase
+  const baseKey = userContext || 'session-key';
+  return baseKey + '-' + Date.now().toString(36);
+};
 
 /**
- * Gera uma chave de criptografia a partir de uma string
+ * Gera uma chave de criptografia a partir de uma string com salt
  */
-async function generateKey(keyMaterial: string): Promise<CryptoKey> {
+async function generateKey(keyMaterial: string, userSalt?: string): Promise<CryptoKey> {
   const encoder = new TextEncoder();
-  const keyBytes = encoder.encode(keyMaterial);
+  const finalKeyMaterial = keyMaterial + (userSalt || 'default-salt');
+  const keyBytes = encoder.encode(finalKeyMaterial);
   
   // Hash da chave para ter tamanho consistente
   const hashBuffer = await crypto.subtle.digest('SHA-256', keyBytes);
@@ -30,7 +35,9 @@ async function generateKey(keyMaterial: string): Promise<CryptoKey> {
  */
 export async function encryptSensitiveData(data: string, userKey?: string): Promise<string> {
   try {
-    const key = await generateKey(userKey || ENCRYPTION_KEY_BASE);
+    const keyMaterial = userKey || getEncryptionKeyBase();
+    const userSalt = userKey ? userKey.slice(0, 8) : undefined;
+    const key = await generateKey(keyMaterial, userSalt);
     const encoder = new TextEncoder();
     const dataBytes = encoder.encode(data);
     
@@ -62,7 +69,9 @@ export async function encryptSensitiveData(data: string, userKey?: string): Prom
  */
 export async function decryptSensitiveData(encryptedData: string, userKey?: string): Promise<string> {
   try {
-    const key = await generateKey(userKey || ENCRYPTION_KEY_BASE);
+    const keyMaterial = userKey || getEncryptionKeyBase();
+    const userSalt = userKey ? userKey.slice(0, 8) : undefined;
+    const key = await generateKey(keyMaterial, userSalt);
     
     // Decodifica de base64
     const combined = new Uint8Array(
