@@ -79,7 +79,7 @@ const App = () => {
                       <Route path="/privacidade" element={<PageSuspense><Privacy /></PageSuspense>} />
                       <Route path="/termos" element={<PageSuspense><TermsOfService /></PageSuspense>} />
                       <Route path="/faq" element={<PageSuspense><FAQ /></PageSuspense>} />
-                      <Route path="/avaliacao" element={<PageSuspense><Assessment /></PageSuspense>} />
+                      <Route path="/avaliacao" element={<PageSuspense><AccessGuard><Assessment /></AccessGuard></PageSuspense>} />
                       <Route path="/auth" element={<PageSuspense><Auth /></PageSuspense>} />
                       <Route path="/reset-password" element={<PageSuspense><ResetPassword /></PageSuspense>} />
                       <Route path="/precos" element={<PageSuspense>{/* Pricing page */}{/* Avoid duplicate hero/sections */}{/* Only Pricing */}{/* A dedicated page */}{/* Keep simple */}{/* eslint-disable */}{/* @ts-ignore */}{/* we import lazily below if needed */}{/* eslint-enable */}{/* Actually defined */}<Precos /></PageSuspense>} />

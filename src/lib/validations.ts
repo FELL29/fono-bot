@@ -34,7 +34,7 @@ export const assessmentFormSchema = z.object({
   follow_commands: z.string().min(1, 'Campo obrigatório'),
 
   // Bloco E - Social & Sensorial
-  joint_attention: z.string().min(1, 'Campo obrigatório'),
+  joint_attention: z.string().optional(),
   joint_attention_pointing: z.string().min(1, 'Campo obrigatório'),
   joint_attention_sharing: z.string().min(1, 'Campo obrigatório'),
   sensory_issue: z.array(z.string()),
