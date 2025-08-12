@@ -34,41 +34,41 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
     const today = new Date();
     const weekStart = startOfWeek(today, { locale: ptBR });
     
-    return Array.from({ length: 7 }, (_, index) => {
-      const date = addDays(weekStart, index);
-      const activities: WeeklyActivity[] = [
-        {
-          id: `${index}-1`,
-          title: 'Exercício de Respiração',
-          completed: index < 3,
-          difficulty: 'easy',
-          type: 'exercise'
-        },
-        {
-          id: `${index}-2`,
-          title: 'Vídeo Interativo',
-          completed: index < 2,
-          difficulty: 'medium',
-          type: 'video'
-        },
-        {
-          id: `${index}-3`,
-          title: 'Jogo da Memória Sonora',
-          completed: index < 1,
-          difficulty: 'hard',
-          type: 'game'
-        }
-      ];
-      
-      const completedCount = activities.filter(a => a.completed).length;
-      const completionRate = (completedCount / activities.length) * 100;
-      
-      return {
-        date,
-        activities,
-        completionRate
-      };
-    });
+      return Array.from({ length: 7 }, (_, index) => {
+        const date = addDays(weekStart, index);
+        const activities: WeeklyActivity[] = [
+          {
+            id: `${index}-1`,
+            title: 'Exercício de Respiração',
+            completed: false,
+            difficulty: 'easy',
+            type: 'exercise'
+          },
+          {
+            id: `${index}-2`,
+            title: 'Vídeo Interativo',
+            completed: false,
+            difficulty: 'medium',
+            type: 'video'
+          },
+          {
+            id: `${index}-3`,
+            title: 'Jogo da Memória Sonora',
+            completed: false,
+            difficulty: 'hard',
+            type: 'game'
+          }
+        ];
+        
+        const completedCount = activities.filter(a => a.completed).length;
+        const completionRate = (completedCount / activities.length) * 100;
+        
+        return {
+          date,
+          activities,
+          completionRate
+        };
+      });
   }, []);
 
   const getDifficultyColor = (difficulty: string) => {

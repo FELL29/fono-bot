@@ -11,6 +11,7 @@ import { BackupService } from "@/components/BackupService";
 import { LocalStorageMigration } from "@/components/LocalStorageMigration";
 import { CSRFProvider } from "@/contexts/CSRFContext";
 import { logger } from "@/lib/logger";
+import AccessGuard from "@/components/AccessGuard";
 
 // Lazy load all pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -26,6 +27,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Tracks = lazy(() => import("./pages/Tracks"));
 const SecurityDashboard = lazy(() => import("@/components/SecurityDashboard").then(module => ({ default: module.SecurityDashboard })));
+const Precos = lazy(() => import("./pages/Precos"));
 
 // Profile-specific pages
 const CriancasTypicas = lazy(() => import("./pages/CriancasTypicas"));
@@ -71,28 +73,29 @@ const App = () => {
               <BrowserRouter>
                 <EnhancedErrorBoundary context="Router">
                   <Routes>
-                    <Route path="/" element={<PageSuspense><Index /></PageSuspense>} />
-                    <Route path="/sobre" element={<PageSuspense><About /></PageSuspense>} />
-                    <Route path="/contato" element={<PageSuspense><Contact /></PageSuspense>} />
-                    <Route path="/privacidade" element={<PageSuspense><Privacy /></PageSuspense>} />
-                    <Route path="/termos" element={<PageSuspense><TermsOfService /></PageSuspense>} />
-                    <Route path="/faq" element={<PageSuspense><FAQ /></PageSuspense>} />
-                    <Route path="/avaliacao" element={<PageSuspense><Assessment /></PageSuspense>} />
-                    <Route path="/auth" element={<PageSuspense><Auth /></PageSuspense>} />
-                    <Route path="/reset-password" element={<PageSuspense><ResetPassword /></PageSuspense>} />
-                    <Route path="/trilhas" element={<PageSuspense><Tracks /></PageSuspense>} />
-                    <Route path="/dashboard" element={<PageSuspense><Dashboard /></PageSuspense>} />
-                    <Route path="/seguranca" element={<PageSuspense><SecurityDashboard /></PageSuspense>} />
-                    
-                    {/* Profile-specific routes */}
-                    <Route path="/criancas-tipicas" element={<PageSuspense><CriancasTypicas /></PageSuspense>} />
-                    <Route path="/sindrome-down" element={<PageSuspense><SindromeDown /></PageSuspense>} />
-                    <Route path="/espectro-autista" element={<PageSuspense><EspectroAutista /></PageSuspense>} />
-                    <Route path="/transtornos-linguagem" element={<PageSuspense><TranstornosLinguagem /></PageSuspense>} />
-                    
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<PageSuspense><NotFound /></PageSuspense>} />
-                  </Routes>
+                      <Route path="/" element={<PageSuspense><Index /></PageSuspense>} />
+                      <Route path="/sobre" element={<PageSuspense><About /></PageSuspense>} />
+                      <Route path="/contato" element={<PageSuspense><Contact /></PageSuspense>} />
+                      <Route path="/privacidade" element={<PageSuspense><Privacy /></PageSuspense>} />
+                      <Route path="/termos" element={<PageSuspense><TermsOfService /></PageSuspense>} />
+                      <Route path="/faq" element={<PageSuspense><FAQ /></PageSuspense>} />
+                      <Route path="/avaliacao" element={<PageSuspense><Assessment /></PageSuspense>} />
+                      <Route path="/auth" element={<PageSuspense><Auth /></PageSuspense>} />
+                      <Route path="/reset-password" element={<PageSuspense><ResetPassword /></PageSuspense>} />
+                      <Route path="/precos" element={<PageSuspense>{/* Pricing page */}{/* Avoid duplicate hero/sections */}{/* Only Pricing */}{/* A dedicated page */}{/* Keep simple */}{/* eslint-disable */}{/* @ts-ignore */}{/* we import lazily below if needed */}{/* eslint-enable */}{/* Actually defined */}<Precos /></PageSuspense>} />
+                      <Route path="/trilhas" element={<PageSuspense><AccessGuard><Tracks /></AccessGuard></PageSuspense>} />
+                      <Route path="/dashboard" element={<PageSuspense><AccessGuard><Dashboard /></AccessGuard></PageSuspense>} />
+                      <Route path="/seguranca" element={<PageSuspense><AccessGuard><SecurityDashboard /></AccessGuard></PageSuspense>} />
+                      
+                      {/* Profile-specific routes */}
+                      <Route path="/criancas-tipicas" element={<PageSuspense><CriancasTypicas /></PageSuspense>} />
+                      <Route path="/sindrome-down" element={<PageSuspense><SindromeDown /></PageSuspense>} />
+                      <Route path="/espectro-autista" element={<PageSuspense><EspectroAutista /></PageSuspense>} />
+                      <Route path="/transtornos-linguagem" element={<PageSuspense><TranstornosLinguagem /></PageSuspense>} />
+                      
+                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                      <Route path="*" element={<PageSuspense><NotFound /></PageSuspense>} />
+                    </Routes>
                 </EnhancedErrorBoundary>
               </BrowserRouter>
             </CSRFProvider>
