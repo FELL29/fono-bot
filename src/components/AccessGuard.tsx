@@ -21,17 +21,8 @@ const AccessGuard = ({ children }: PropsWithChildren) => {
       return;
     }
 
-    // Bloqueia acesso se trial expirado
-    if (profile.plan === 'TRIAL' && profile.trial_end) {
-      const expired = new Date(profile.trial_end).getTime() <= Date.now();
-      if (expired) {
-        toast({
-          title: 'Seu período de teste terminou',
-          description: 'Assine um plano para continuar usando as ferramentas.',
-        });
-        navigate('/precos');
-      }
-    }
+    // VERSÃO DE TESTE: Acesso livre para todas as funcionalidades
+    // As restrições de trial foram removidas temporariamente
   }, [user, profile, loading, navigate, toast]);
 
   if (!user || loading) {

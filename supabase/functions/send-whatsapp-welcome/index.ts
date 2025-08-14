@@ -85,7 +85,7 @@ serve(async (req) => {
     const { data: firstActivity, error: activityError } = await supabaseClient
       .from('activities')
       .select('title, instructions')
-      .eq('track_id', track_id)
+      .eq('track_id', requestData.track_id)
       .eq('day_index', 1)
       .single();
 
@@ -95,14 +95,14 @@ serve(async (req) => {
 
     // Formatar mensagem personalizada
     const activityText = firstActivity 
-      ? `"${firstActivity.title}" - ${firstActivity.instructions.replace(/{{child_name}}/g, child_name).substring(0, 150)}...`
+      ? `"${firstActivity.title}" - ${firstActivity.instructions.replace(/{{child_name}}/g, requestData.child_name).substring(0, 150)}...`
       : "Atividades personalizadas serão disponibilizadas em breve.";
 
-    const whatsappMessage = `🎉 Olá ${parent_name}!
+    const whatsappMessage = `🎉 Olá ${requestData.parent_name}!
 
 Bem-vindo(a) ao FonoBot! 
 
-A avaliação de ${child_name} foi concluída com sucesso. Criamos um plano personalizado de atividades de fonoaudiologia.
+A avaliação de ${requestData.child_name} foi concluída com sucesso. Criamos um plano personalizado de atividades de fonoaudiologia.
 
 🎯 Primeira atividade sugerida:
 ${activityText}
@@ -117,7 +117,7 @@ Acesse seu dashboard: ${req.headers.get("origin")}/dashboard`;
     const simulationResult = {
       status: "simulated",
       message: whatsappMessage,
-      to: whatsapp,
+      to: requestData.whatsapp,
       timestamp: new Date().toISOString(),
       success: true,
       provider: "simulation"
@@ -125,9 +125,9 @@ Acesse seu dashboard: ${req.headers.get("origin")}/dashboard`;
 
     // Registrar no banco para fins de log (opcional - criar tabela depois)
     logStep("WhatsApp simulation completed", {
-      to: whatsapp,
-      child: child_name,
-      parent: parent_name,
+      to: requestData.whatsapp,
+      child: requestData.child_name,
+      parent: requestData.parent_name,
       messagePreview: whatsappMessage.substring(0, 100) + "..."
     });
 
