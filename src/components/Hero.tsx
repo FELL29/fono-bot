@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Heart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
-import heroImage from "@/assets/tiafono-character-new.png";
+import heroImage from "@/assets/tiafono-character-branded.png";
 
 const Hero = () => {
   return (
@@ -64,11 +64,12 @@ const Hero = () => {
           </div>
 
           <div className="relative">
+            <div className="absolute inset-0 bg-gradient-primary rounded-full opacity-20 blur-2xl animate-pulse-glow"></div>
             <div className="relative z-10">
               <img 
                 src={heroImage} 
                 alt="FonoBot - Assistente de Fonoaudiologia"
-                className="w-full h-auto rounded-2xl shadow-glow"
+                className="w-full h-auto rounded-2xl shadow-glow animate-float hover:animate-gentle-bounce transition-all duration-300"
               />
             </div>
             <div className="absolute -top-4 -right-4 w-full h-full bg-gradient-secondary rounded-2xl opacity-20 -z-10"></div>

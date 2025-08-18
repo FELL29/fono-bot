@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
-import tiaFonoCharacter from "@/assets/tiafono-character-new.png";
+import tiaFonoCharacter from "@/assets/tiafono-character-branded.png";
 
 const CTA = () => {
   return (
@@ -26,11 +26,12 @@ const CTA = () => {
           </div>
 
           <div className="relative">
+            <div className="absolute inset-0 bg-gradient-secondary rounded-full opacity-15 blur-3xl animate-pulse-glow"></div>
             <div className="relative z-10 flex justify-center">
               <img 
                 src={tiaFonoCharacter} 
                 alt="TiaFono - Assistente de Fonoaudiologia"
-                className="w-80 h-80 object-contain"
+                className="w-80 h-80 object-contain animate-gentle-bounce hover:animate-float transition-all duration-300"
               />
             </div>
           </div>
