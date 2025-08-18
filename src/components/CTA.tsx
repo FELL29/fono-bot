@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
-import tiaFonoCharacter from "@/assets/tiafono-character.png";
+import tiaFonoCharacter from "@/assets/tiafono-character-new.png";
 
 const CTA = () => {
   return (

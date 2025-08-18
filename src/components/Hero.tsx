@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Heart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
-import heroImage from "@/assets/tiafono-character.png";
+import heroImage from "@/assets/tiafono-character-new.png";
 
 const Hero = () => {
   return (
