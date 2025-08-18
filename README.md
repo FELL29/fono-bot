@@ -145,3 +145,11 @@ Para questões de segurança ou compliance:
 ---
 
 **Nota**: Esta implementação segue as melhores práticas de segurança e está em conformidade com a LGPD. Todos os dados são tratados com o máximo rigor de proteção.
+
+## Setup de Ambiente
+
+1. Copie `.env.example` para `.env` e preencha os valores reais localmente (NUNCA commitar `.env`).
+2. Use **npm** como gerenciador (padronizado):
+   - Instalação: `npm ci`
+   - Build: `npm run build`
+   - Dev: `npm run dev`
