@@ -63,17 +63,12 @@ const Hero = () => {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-primary rounded-full opacity-20 blur-2xl animate-pulse-glow"></div>
-            <div className="relative z-10">
-              <img 
-                src={heroImage} 
-                alt="FonoBot - Assistente de Fonoaudiologia"
-                className="w-full h-auto rounded-2xl shadow-glow animate-float hover:animate-gentle-bounce transition-all duration-300"
-              />
-            </div>
-            <div className="absolute -top-4 -right-4 w-full h-full bg-gradient-secondary rounded-2xl opacity-20 -z-10"></div>
-            <div className="absolute -bottom-4 -left-4 w-full h-full bg-gradient-warm rounded-2xl opacity-15 -z-20"></div>
+          <div className="flex justify-center">
+            <img 
+              src={heroImage} 
+              alt="TiaFono - Assistente de Fonoaudiologia"
+              className="w-80 h-80 object-contain animate-teaching-gesture hover:animate-gentle-wave transition-all duration-500"
+            />
           </div>
         </div>
       </div>

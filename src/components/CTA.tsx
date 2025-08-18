@@ -25,15 +25,12 @@ const CTA = () => {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-secondary rounded-full opacity-15 blur-3xl animate-pulse-glow"></div>
-            <div className="relative z-10 flex justify-center">
-              <img 
-                src={tiaFonoCharacter} 
-                alt="TiaFono - Assistente de Fonoaudiologia"
-                className="w-80 h-80 object-contain animate-gentle-bounce hover:animate-float transition-all duration-300"
-              />
-            </div>
+          <div className="flex justify-center">
+            <img 
+              src={tiaFonoCharacter} 
+              alt="TiaFono - Assistente de Fonoaudiologia"
+              className="w-80 h-80 object-contain animate-subtle-nod hover:animate-gentle-wave transition-all duration-500"
+            />
           </div>
         </div>
       </div>

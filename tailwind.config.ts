@@ -155,12 +155,37 @@ export default {
 						transform: "translateY(-5px) scale(1.02)" 
 					}
 				},
-				"pulse-glow": {
-					"0%, 100%": {
-						boxShadow: "0 0 20px hsl(var(--primary-glow) / 0.3)"
+				"teaching-gesture": {
+					"0%, 100%": { 
+						transform: "translateY(0px) rotate(0deg)" 
 					},
-					"50%": {
-						boxShadow: "0 0 40px hsl(var(--primary-glow) / 0.6)"
+					"25%": { 
+						transform: "translateY(-8px) rotate(2deg)" 
+					},
+					"50%": { 
+						transform: "translateY(-12px) rotate(-1deg)" 
+					},
+					"75%": { 
+						transform: "translateY(-6px) rotate(1deg)" 
+					}
+				},
+				"gentle-wave": {
+					"0%, 100%": { 
+						transform: "translateX(0px) translateY(0px)" 
+					},
+					"33%": { 
+						transform: "translateX(3px) translateY(-4px)" 
+					},
+					"66%": { 
+						transform: "translateX(-2px) translateY(-8px)" 
+					}
+				},
+				"subtle-nod": {
+					"0%, 100%": { 
+						transform: "translateY(0px) scale(1)" 
+					},
+					"50%": { 
+						transform: "translateY(-3px) scale(1.01)" 
 					}
 				}
 			},
@@ -175,7 +200,10 @@ export default {
 				"slide-out-right": "slide-out-right 0.3s ease-out",
 				"float": "float 3s ease-in-out infinite",
 				"gentle-bounce": "gentle-bounce 2s ease-in-out infinite",
-				"pulse-glow": "pulse-glow 2s ease-in-out infinite"
+				"pulse-glow": "pulse-glow 2s ease-in-out infinite",
+				"teaching-gesture": "teaching-gesture 4s ease-in-out infinite",
+				"gentle-wave": "gentle-wave 3.5s ease-in-out infinite",
+				"subtle-nod": "subtle-nod 2.5s ease-in-out infinite"
 			},
 			backgroundSize: {
 				'gradient-radial': 'radial-gradient(circle, transparent 20%, slategray 20%, slategray 80%, transparent 80%, transparent)',
