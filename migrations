@@ -1,0 +1,32 @@
+-- === RLS ON ===
+ALTER TABLE audit_logs   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_backups ENABLE ROW LEVEL SECURITY;
+
+-- === POLICIES: leitura restrita ao dono (user_id) ===
+DROP POLICY IF EXISTS read_own_audit_logs  ON audit_logs;
+CREATE POLICY read_own_audit_logs
+ON audit_logs
+FOR SELECT
+USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS read_own_backups ON user_backups;
+CREATE POLICY read_own_backups
+ON user_backups
+FOR SELECT
+USING (auth.uid() = user_id);
+
+-- === POLICIES: escrita ===
+-- Backups: o próprio usuário pode inserir seus registros
+DROP POLICY IF EXISTS insert_own_backups ON user_backups;
+CREATE POLICY insert_own_backups
+ON user_backups
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Audit logs: somente edge function autorizada pode inserir
+-- (ajuste o claim 'role' conforme sua emissão de JWT para edge)
+DROP POLICY IF EXISTS insert_via_edge_audit ON audit_logs;
+CREATE POLICY insert_via_edge_audit
+ON audit_logs
+FOR INSERT
+WITH CHECK ((current_setting('request.jwt.claims', true)::jsonb ->> 'role') = 'edge');
