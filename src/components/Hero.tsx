@@ -20,15 +20,14 @@ const Hero = () => {
               </div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
-                <span className="text-foreground">A</span>{" "}
                 <span className="bg-gradient-primary bg-clip-text text-transparent">
-                  TiaFono
+                  FonoBot
                 </span>{" "}
-                <span className="text-foreground">ajuda crianças a se comunicarem melhor todos os dias.</span>
+                <span className="text-foreground">- A plataforma completa de fonoaudiologia infantil</span>
               </h1>
               
               <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
-                Comece hoje a estimular o desenvolvimento de forma divertida.
+                Com a <strong className="text-foreground">TiaFono</strong>, nossa terapeuta virtual especializada, seu filho desenvolve a comunicação de forma divertida e personalizada.
               </p>
             </div>
 
@@ -68,7 +67,7 @@ const Hero = () => {
             <div className="relative z-10">
               <img 
                 src={heroImage} 
-                alt="FonoBot - Assistente de Fonoaudiologia"
+                alt="TiaFono - Terapeuta Virtual do FonoBot"
                 className="w-full h-auto rounded-2xl shadow-glow animate-float hover:animate-gentle-bounce transition-all duration-300"
               />
             </div>

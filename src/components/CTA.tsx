@@ -11,8 +11,11 @@ const CTA = () => {
           <div className="space-y-8 text-center lg:text-left">
             <div className="space-y-4">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground">
-                Comece hoje a estimular o desenvolvimento de forma divertida.
+                Descubra o poder do FonoBot com a TiaFono
               </h2>
+              <p className="text-lg text-primary-foreground/90 mt-4">
+                A terapeuta virtual que transforma o desenvolvimento da linguagem em diversão
+              </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">

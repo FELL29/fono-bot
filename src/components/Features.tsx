@@ -9,18 +9,18 @@ const Features = () => {
   const features = [
     {
       icon: Brain,
-      title: "Estimula a linguagem",
-      description: "Atividades especializadas para desenvolver habilidades de comunicação"
+      title: "Avaliação Inteligente",
+      description: "A TiaFono avalia o desenvolvimento da criança e cria um plano personalizado"
     },
     {
       icon: Target,
-      title: "Personaliza atividades", 
-      description: "Exercícios adaptados para cada criança baseados na avaliação inicial"
+      title: "Atividades Adaptadas", 
+      description: "Exercícios e jogos ajustados automaticamente conforme o progresso da criança"
     },
     {
       icon: Users,
-      title: "Acompanha progresso",
-      description: "Monitore o desenvolvimento e celebrate cada conquista"
+      title: "Acompanhamento Contínuo",
+      description: "Relatórios detalhados e orientações para pais e profissionais"
     }
   ];
 
@@ -29,8 +29,11 @@ const Features = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-foreground">
-            Como Funciona
+            Como o FonoBot Funciona
           </h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Conheça a <strong className="text-primary">TiaFono</strong>, nossa terapeuta virtual que guia cada etapa do desenvolvimento
+          </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 mb-16">
@@ -61,7 +64,7 @@ const Features = () => {
               <div className="flex-1">
                 <div className="bg-muted/50 rounded-2xl p-4 relative">
                   <p className="text-foreground">
-                    Nossa filha adora usar a TiaFono! Estamos muito felizes com o progresso.
+                    O FonoBot transformou nossa rotina! A TiaFono fez nossa filha se apaixonar pelos exercícios de fala.
                   </p>
                   <div className="flex items-center mt-2">
                     {[...Array(5)].map((_, i) => (
@@ -84,7 +87,7 @@ const Features = () => {
         <div className="mt-12 text-center">
           <div className="bg-gradient-primary rounded-2xl p-8 text-center">
             <h3 className="text-2xl font-bold text-primary-foreground mb-4">
-              Comece hoje a estimular o desenvolvimento de forma divertida.
+              Experimente o FonoBot com a TiaFono gratuitamente
             </h3>
             <Button 
               size="lg" 
