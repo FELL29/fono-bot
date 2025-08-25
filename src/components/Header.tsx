@@ -1,15 +1,38 @@
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Menu, X, LogOut } from "lucide-react";
-import { useState } from "react";
+import { MessageCircle, Menu, X, LogOut, ChevronDown } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import fonoBotIcon from "@/assets/fonobot-icon.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isConditionsOpen, setIsConditionsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsConditionsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const conditionsItems = [
+    { label: "Crianças Típicas", href: "/criancas-tipicas" },
+    { label: "Espectro Autista", href: "/espectro-autista" },
+    { label: "Síndrome de Down", href: "/sindrome-down" },
+    { label: "Transtornos da Linguagem", href: "/transtornos-linguagem" },
+  ];
 
   const navItems = user ? [
     { label: "Dashboard", href: "/dashboard" },
@@ -17,7 +40,7 @@ const Header = () => {
   ] : [
     { label: "Início", href: "/" },
     { label: "Sobre", href: "/sobre" },
-    { label: "Recursos", href: "/#recursos" },
+    { label: "Condições", href: "/condicoes", hasDropdown: true },
     { label: "Preços", href: "/precos" },
     { label: "Contato", href: "/contato" },
   ];
@@ -47,7 +70,31 @@ const Header = () => {
 
             <nav className="hidden md:flex items-center space-x-8">
               {navItems.map((item) => (
-                item.href.startsWith("/#") ? (
+                item.hasDropdown ? (
+                  <div key={item.label} className="relative" ref={dropdownRef}>
+                    <button
+                      onClick={() => setIsConditionsOpen(!isConditionsOpen)}
+                      className="flex items-center space-x-1 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <span>{item.label}</span>
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                    {isConditionsOpen && (
+                      <div className="absolute top-full left-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg z-50">
+                        {conditionsItems.map((conditionItem) => (
+                          <Link
+                            key={conditionItem.label}
+                            to={conditionItem.href}
+                            className="block px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                            onClick={() => setIsConditionsOpen(false)}
+                          >
+                            {conditionItem.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : item.href.startsWith("/#") ? (
                   <a
                     key={item.label}
                     href={item.href}
@@ -118,7 +165,23 @@ const Header = () => {
           <div className="container mx-auto px-4 pt-20 pb-8">
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
-                item.href.startsWith("/#") ? (
+                item.hasDropdown ? (
+                  <div key={item.label} className="space-y-2">
+                    <span className="text-lg font-medium text-foreground">{item.label}</span>
+                    <div className="ml-4 space-y-2">
+                      {conditionsItems.map((conditionItem) => (
+                        <Link
+                          key={conditionItem.label}
+                          to={conditionItem.href}
+                          className="block text-muted-foreground hover:text-foreground transition-colors"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {conditionItem.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : item.href.startsWith("/#") ? (
                   <a
                     key={item.label}
                     href={item.href}
